@@ -35,8 +35,14 @@ class User(db.Model, SerializerMixin):
     favorite_recipes = db.relationship(
         "FavoriteRecipe", back_populates="user", cascade="all, delete-orphan"
     )
+    recipe_ratings = db.relationship(
+        "RecipeRating", back_populates="user", cascade="all, delete-orphan"
+    )
 
-    serialize_rules = ("-favorite_recipes.user",)
+    serialize_rules = (
+        "-favorite_recipes.user",
+        "-recipe_ratings.user",
+    )
 
     @validates("email", "username")
     def validates_user(self, _, value):
@@ -71,7 +77,7 @@ class Recipe(db.Model, SerializerMixin):
         Enum("Breakfast", "Lunch", "Dinner", name="meal_type"), nullable=False
     )
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-
+    user = db.relationship("User", back_populates="recipes")
     favorite_recipes = db.relationship(
         "FavoriteRecipe", back_populates="recipe", cascade="all, delete-orphan"
     )
@@ -80,16 +86,15 @@ class Recipe(db.Model, SerializerMixin):
         "RecipeRating", back_populates="recipe", cascade="all, delete-orphan"
     )
 
-    _ingredients = db.relationship(
+    ingredients = db.relationship(
         "Ingredient",
         secondary=recipe_ingredients,
-        back_populates="recipes",
-        cascade="all, delete-orphan",
+        back_populates="_recipes",
     )
     comments = db.relationship(
         "Comment", back_populates="recipe", cascade="all, delete-orphan"
     )
-    ingredients = association_proxy("_ingredients", "name")
+    # ingredients = association_proxy("_ingredients", "name")
 
     serialize_rules = ("-favorited_by.recipes", "-comments.recipe")
 
@@ -101,11 +106,12 @@ class Ingredient(db.Model, SerializerMixin):
 
     _recipes = db.relationship(
         "Recipe",
-        secondary="recipe_ingredients",
+        secondary=recipe_ingredients,
         back_populates="ingredients",
-        cascade="all, delete-orphan",
     )
+
     recipes = association_proxy("_recipes", "title")
+
     serialize_rules = ("-recipes.favorited_by", "-recipes.comments.recipe")
 
 
@@ -115,9 +121,7 @@ class Comment(db.Model, SerializerMixin):
     text = db.Column(db.Text)
     recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"), nullable=False)
 
-    recipes = db.relationship(
-        "Recipe", back_populates="comments", cascade="all, delete-orphan"
-    )
+    recipe = db.relationship("Recipe", back_populates="comments", single_parent=True)
 
     serialize_rules = ("-recipe.favorited_by.recipes",)
 
@@ -135,10 +139,8 @@ class FavoriteRecipe(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"), nullable=False)
 
-    users = db.relationship("User", back_populates="favorite_recipes", cascade="all")
-    recipes = db.relationship(
-        "Recipe", back_populates="favorite_recipes", cascade="all"
-    )
+    user = db.relationship("User", back_populates="favorite_recipes", cascade="all")
+    recipe = db.relationship("Recipe", back_populates="favorite_recipes", cascade="all")
 
     serialize_rules = ("-user.favorite_recipes", "-recipe.favorite_recipes")
 
@@ -148,10 +150,12 @@ class RecipeRating(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Float, nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-    recipes = db.relationship(
-        "Recipe", back_populates="recipe_ratings", cascade="all, delete-orphan"
+    recipe = db.relationship(
+        "Recipe", back_populates="recipe_ratings", single_parent=True
     )
+    user = db.relationship("User", back_populates="recipe_ratings")
     serialize_rules = ("-recipe.favorited_by.recipes",)
 
     @validates("rating")
