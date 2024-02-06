@@ -72,7 +72,7 @@ def create_recipes(users, ingredients):
     recipe = Recipe(
         title="Vegetable Salad",
         description="A refreshing and healthy vegetable salad.",
-        instructions="1. Chop the vegetables.\n2. Mix them in a bowl.\n3. Serve on a white ceramic plate.",
+        instructions="1. Chop the vegetables.\n2. Mix them in a bowl.\n3. Add any desired toppings such as cheese or dressings.\n4. Serve on a plate.",
         meal_type="Lunch",
         user=rc(users),
         ingredients=rc(ingredients, k=5),
@@ -86,5 +86,10 @@ if __name__ == "__main__":
     with app.app_context():
         print("Creating tables...")
         db.create_all()
+
+        print("Seeding users...")
+        users = create_users()
+        db.session.add_all(users)
+        db.session.commit()
 
     # Seed code goes here!
