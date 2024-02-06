@@ -27,3 +27,23 @@ body {
   height: 150px;
   margin-top: -50px;
 }
+
+.footer {
+  position: fixed; /* Position the footer */
+  bottom: 0; /* Stick it to the bottom of the viewport */
+  left: 0;
+  width: 100%; /* Occupy the full width */
+  background-color: #090808;
+  color: #fff;
+  padding: 20px;
+}
+
+.footer-content p {
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+
+
+
