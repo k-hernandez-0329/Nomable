@@ -1,10 +1,29 @@
 :root {
   --bg: #090808;
-  --header: #fff;
-  --link: #61dafb;
   --text: hsla(0, 0%, 100%, 0.88);
 }
 
 body {
   background-color: var(--bg);
+}
+
+.header {
+  background-color: #090808;
+  padding: 10px 0px; 
+  display: flex;
+  margin-bottom: 5px;
+  justify-content: space-between;
+}
+
+.header-content {
+  display: flex;
+
+  width: 100%;
+  max-width: 1200px; 
+  margin: auto;
+}
+
+.logo {
+  height: 150px;
+  margin-top: -50px;
 }
