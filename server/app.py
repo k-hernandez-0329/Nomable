@@ -72,7 +72,7 @@ class SignUp(Resource):
         email = json_data.get("email")
         username = json_data.get("username")
         password = json_data.get("password")
-
+        avatar = json_data.get("avatar")
         if not username or not email or not password:
             return {"error": "Username, Email, and password are required"}, 400
 
@@ -86,7 +86,12 @@ class SignUp(Resource):
             password.encode("utf-8")
         ).decode("utf-8")
 
-        new_user = User(username=username, email=email, _password_hash=hashed_password)
+        new_user = User(
+            username=username,
+            email=email,
+            _password_hash=hashed_password,
+            avatar=avatar,
+        )
 
         db.session.add(new_user)
         db.session.commit()
@@ -115,6 +120,9 @@ class UsersById(Resource):
             return make_response({"errors": "User not found"}, 404)
 
         data = request.get_json()
+        if "avatar" in data:
+            user.avatar = data["avatar"]
+
         try:
             for attr in data:
                 if attr in data:
@@ -252,7 +260,11 @@ class FavoriteRecipes(Resource):
         if user.has_favorited(recipe):
             return {"error": "Recipe already favorited by the user"}, 400
 
-        user.favorite_recipe(recipe)
+        # Instantiate the FavoriteRecipe model
+        favorite_recipe = FavoriteRecipe(user=user, recipe=recipe)
+
+        # Add to session and commit to save to the database
+        db.session.add(favorite_recipe)
         db.session.commit()
 
         return {"message": "Recipe favorited successfully"}, 201
@@ -263,6 +275,7 @@ class FavoriteRecipes(Resource):
         if not user:
             return {"error": "User not found"}, 404
 
+        # Get the favorite recipes through the relationship
         favorite_recipes = user.favorite_recipes
         return make_response([recipe.to_dict() for recipe in favorite_recipes], 200)
 
@@ -274,10 +287,15 @@ class FavoriteRecipes(Resource):
             return {"error": "User or recipe not found"}, 404
 
         # Check if the recipe is favorited by the user
-        if not user.has_favorited(recipe):
+        favorite_recipe = FavoriteRecipe.query.filter_by(
+            user_id=user.id, recipe_id=recipe.id
+        ).first()
+
+        if not favorite_recipe:
             return {"error": "Recipe is not favorited by the user"}, 400
 
-        user.unfavorite_recipe(recipe)
+        # Remove from session and commit to delete from the database
+        db.session.delete(favorite_recipe)
         db.session.commit()
 
         return {"message": "Recipe unfavorited successfully"}, 204
