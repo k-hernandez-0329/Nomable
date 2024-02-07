@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Header from "./Header"
 import "../index.css";
 import Footer from "./Footer";
+import SearchBar from "./SearchBar";
+import SignUp from "./SignUp";
+
 
 
 
@@ -32,14 +35,16 @@ function App() {
   
   
   return (
-    <div>
-      <Header />
-    
-     
-
-
-    <Footer/>
-    </div>
+    <Router>
+      <div>
+        <Header />
+        <SearchBar />
+        <Switch>
+          <Route path="/signup" component={SignUp} />
+        </Switch>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
