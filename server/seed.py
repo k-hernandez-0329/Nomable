@@ -8,7 +8,7 @@ from faker import Faker
 
 # Local imports
 from app import app
-from models import db, Recipe, User, RecipeRating, FavoriteRecipe, Ingredient
+from models import db, Profile, Recipe, User, RecipeRating, FavoriteRecipe, Ingredient
 from config import bcrypt
 
 
@@ -32,7 +32,10 @@ def create_users():
             _password_hash=hashed_password,
             avatar=rc(avatars),
         )
+        profile = Profile()
+        profile.user = u
         users.append(u)
+
     return users
 
 
@@ -278,8 +281,10 @@ def create_recipe_ratings(recipes, users):
     for recipe in recipes:
         rating = randint(1, 5)
         rater = rc(users)
-        recipe_rating = RecipeRating(recipe=recipe, rating=rating, user=rater)
-        recipe_ratings.append(recipe_rating)
+
+        if not any(rating.user == rater for rating in recipe.recipe_ratings):
+            recipe_rating = RecipeRating(recipe=recipe, rating=rating, user=rater)
+            recipe_ratings.append(recipe_rating)
     return recipe_ratings
 
 
@@ -288,14 +293,22 @@ def create_favorite_recipes(recipes, users):
     for _ in range(5):
         user = rc(users)
         recipe = rc(recipes)
-        favorite_recipe = FavoriteRecipe(user=user, recipe=recipe)
-        favorite_recipes.append(favorite_recipe)
+
+        if not any(
+            favorite.user == user and favorite.recipe == recipe
+            for favorite in user.favorite_recipes
+        ):
+            favorite_recipe = FavoriteRecipe(user=user, recipe=recipe)
+            favorite_recipes.append(favorite_recipe)
     return favorite_recipes
 
 
 if __name__ == "__main__":
     fake = Faker("en_US")
     with app.app_context():
+        print("Dropping existing tables...")
+        db.drop_all()
+
         print("Creating tables...")
         db.create_all()
 

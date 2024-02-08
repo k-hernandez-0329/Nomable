@@ -2,19 +2,20 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Header from "./Header"
 import "../index.css";
-import RecipeList from "./RecipeList"
+// import RecipeList from "./RecipeList"
 import Footer from "./Footer";
 import SearchBar from "./SearchBar";
 import SignUp from "./SignUp";
 import Login from "./Login";
 import Home from "./Home";
+import Navbar from "./NavBar";
 
 
 
 
 function App() {
    const [user, setUser] = useState(null);
-   const [recipes, setRecipes] = useState([]);
+  //  const [recipes, setRecipes] = useState([]);
    useEffect(() => {
     document.title = "Nomable";
     return () => {
@@ -22,13 +23,13 @@ function App() {
     };
    }, []); 
   
-   useEffect(() => {
-      fetch("/recipes")
-        .then((res) => res.json())
-        .then((data) => {
-          setRecipes(data);
-         })
-     }, []);
+  //  useEffect(() => {
+  //     fetch("/recipes")
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         setRecipes(data);
+  //        })
+  //    }, []);
   
 
 
@@ -68,9 +69,10 @@ function App() {
     <Router>
       <div>
         <Header user={user} onLogout={handleLogout} />
+        <Navbar />
         <SearchBar />
         <Switch>
-          <Route path="/recipes"><RecipeList/></Route>
+          {/* <Route path="/recipes"><RecipeList/></Route> */}
           <Route path="/signup" component={SignUp} />
           <Route path="/login" component={Login}>
             <Login onLogin={handleLogin} />

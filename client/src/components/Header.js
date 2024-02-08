@@ -19,13 +19,12 @@ function handleLogout() {
           <img src={logo} alt="Nomable" className="logo" />
         </Link>
         {user ? (
-          <div>
+          <div className="user-info">
             <p>Welcome, {user.username}!</p>
             <button onClick={handleLogout}>Logout</button>
           </div>
         ) : (
           <Link to="/login" className="login-link">
-            Click Here to Login
           </Link>
         )}
       </div>

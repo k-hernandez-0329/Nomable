@@ -6,13 +6,72 @@
 body {
   background-color: var(--bg);
 }
-
-.login-link {
-  color: #007bff; /* Set the text color */
-  text-decoration: none; /* Remove underline */
-  font-weight: bold; /* Make the text bold */
-  margin-left: 20px; /* Adjust spacing */
+/* .navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px;
+  background-color: #202020;
+  color: white;
+} */
+/* NavBar */
+.menu{
+  background-color: #403f3e;
+  padding: 10px 200px;
+  text-align: center;
 }
+
+.menu a {
+  margin-right: 20px;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+}
+
+/* .menu a:hover {
+  color: #C200FB;
+} */
+
+
+.user-info {
+  background-color: #f0f0f0;
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  margin-left: 645px;
+  margin-top: 50px;
+}
+
+.user-info p {
+  margin-right: 10px;
+  margin-bottom: 40px;
+  
+}
+
+.user-info button {
+  background-color: #ff0000;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 40px;
+ 
+}
+
+.user-info button:hover {
+  background-color: #cc0000;
+}
+
+
+/* 
+.login-link {
+  color: #007bff; 
+  text-decoration: none; 
+  font-weight: bold;
+  margin-left: 20px; 
+} */
 
 
 
@@ -62,6 +121,7 @@ body {
 
 
 .search-container {
+  position: fixed;
   display: flex;
   justify-content: center;
   margin-top: -110px;
@@ -77,6 +137,9 @@ body {
   color: white;
   font-size: 16px;
   font-weight: bold;
+  margin-left: 350px;
+  margin-top: -45px;
+  margin-bottom: 35px;
 }
 
 .search-bar::placeholder {
@@ -101,6 +164,7 @@ body {
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f9f9f9;
+  margin-top: 70px;
 }
 
 /* Heading styles */
@@ -130,7 +194,7 @@ body {
 
 /* Avatar selection styles */
 .avatar-selection {
-  margin-top: 20px;
+  margin-top: -25px;
 }
 
 .avatar-selection h3 {
@@ -173,12 +237,13 @@ body {
 
 /* Container styles */
 .login-container {
-  max-width: 400px;
+  max-width: 300px;
   margin: 0 auto;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f9f9f9;
+  margin-top: 70px;
 }
 
 /* Heading styles */

@@ -28,6 +28,8 @@ class User(db.Model, SerializerMixin):
     _password_hash = db.Column(db.String, nullable=False)
     avatar = db.Column(db.String, nullable=True)
 
+    profile = db.relationship("Profile", back_populates="user")
+
     recipes = db.relationship(
         "Recipe", back_populates="user", cascade="all, delete-orphan"
     )
@@ -66,6 +68,20 @@ class User(db.Model, SerializerMixin):
         return f"<User(id={self.id}, email={self.email}, username={self.username}, avatar={self.avatar})>"
 
 
+class Profile(db.Model, SerializerMixin):
+    __tablename__ = "profiles"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    avatar = db.Column(db.String, nullable=True)
+    user = db.relationship("User", back_populates="profile")
+    favorite_recipes = db.relationship("FavoriteRecipe", back_populates="profile")
+
+    serialize_rules = ("user.profile", "favorite_recipes.profile")
+
+    def update_avatar(self, new_avatar):
+        self.avatar = new_avatar
+
+
 class Recipe(db.Model, SerializerMixin):
     __tablename__ = "recipes"
     id = db.Column(db.Integer, primary_key=True)
@@ -94,7 +110,6 @@ class Recipe(db.Model, SerializerMixin):
     comments = db.relationship(
         "Comment", back_populates="recipe", cascade="all, delete-orphan"
     )
-    # ingredients = association_proxy("_ingredients", "name")
 
     serialize_rules = ("-favorited_by.recipes", "-comments.recipe")
 
@@ -138,9 +153,11 @@ class FavoriteRecipe(db.Model, SerializerMixin):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"), nullable=False)
+    profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"), nullable=True)
 
     user = db.relationship("User", back_populates="favorite_recipes", cascade="all")
     recipe = db.relationship("Recipe", back_populates="favorite_recipes", cascade="all")
+    profile = db.relationship("Profile", back_populates="favorite_recipes")
 
     serialize_rules = ("-user.favorite_recipes", "-recipe.favorite_recipes")
 

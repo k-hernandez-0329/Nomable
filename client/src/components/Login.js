@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext} from "react";
 import { useHistory } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -6,7 +6,6 @@ import { AuthContext } from "./AuthContext";
 
 function Login({onLogin}) {
   const { setUser } = useContext(AuthContext);
-  const [username, setUsername] = useState("");
   const history = useHistory();
 function handleSubmit(values, { setSubmitting }) {
   fetch("/login", {
@@ -39,7 +38,7 @@ function handleSubmit(values, { setSubmitting }) {
 
 return (
   <div className="login-container">
-    <h2 className="login-heading">Login</h2>
+    <h2 className="login-heading">But first log in!</h2>
     <Formik
       initialValues={{ username: "", password: "" }}
       validationSchema={Yup.object().shape({

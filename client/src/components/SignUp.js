@@ -1,17 +1,20 @@
 import React, { useContext } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup"; 
-import { AuthContext } from "./AuthContext"; 
-import donut from "../donut.png"; 
-import fried_egg from "../fried-egg.png"; 
-import gummy_bear from "../gummy-bear.png"; 
-import taco from "../taco.png"; 
+import * as Yup from "yup";
+import { AuthContext } from "./AuthContext";
+import donut from "../donut.png";
+import fried_egg from "../fried-egg.png";
+import gummy_bear from "../gummy-bear.png";
+import taco from "../taco.png";
 import "../index.css";
+
 function SignUp() {
   const { setUser } = useContext(AuthContext);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
+
+
       const response = await fetch("/signup", {
         method: "POST",
         headers: {
@@ -37,13 +40,14 @@ function SignUp() {
     <div className="signup-container">
       <h2 className="signup-heading">Sign Up</h2>
       <Formik
-        initialValues={{ username: "", email: "", password: "", avatar: null }}
+        initialValues={{ username: "", email: "", password: "", avatar: "" }}
         validationSchema={Yup.object().shape({
           username: Yup.string().required("Username is required"),
           email: Yup.string()
             .email("Invalid email")
             .required("Email is required"),
           password: Yup.string().required("Password is required"),
+          avatar: Yup.string().required("Avatar is required"),
         })}
         onSubmit={handleSubmit}
       >
@@ -84,30 +88,32 @@ function SignUp() {
               name="password"
               placeholder="Password"
             />
+
             <ErrorMessage
               className="signup-error"
               name="avatar"
               component="div"
             />
             <div className="avatar-selection">
-              <h3>Choose Avatar</h3>
+              <h3>Choose An Avatar:</h3>
               <label className="avatar-option">
-                <Field type="radio" name="avatar" value="../donut.png" />
+                <Field type="radio" name="avatar" value={donut} />
                 <img src={donut} alt="Donut" />
               </label>
               <label className="avatar-option">
-                <Field type="radio" name="avatar" value="../fried-egg.png" />
+                <Field type="radio" name="avatar" value={fried_egg} />
                 <img src={fried_egg} alt="Fried Egg" />
               </label>
               <label className="avatar-option">
-                <Field type="radio" name="avatar" value="../gummy-bear.png" />
+                <Field type="radio" name="avatar" value={gummy_bear} />
                 <img src={gummy_bear} alt="Gummy Bear" />
               </label>
               <label className="avatar-option">
-                <Field type="radio" name="avatar" value="../taco.png" />
+                <Field type="radio" name="avatar" value={taco} />
                 <img src={taco} alt="Taco" />
               </label>
             </div>
+
             <button
               className="signup-submit"
               type="submit"
@@ -123,7 +129,3 @@ function SignUp() {
 }
 
 export default SignUp;
-
-
-
-            

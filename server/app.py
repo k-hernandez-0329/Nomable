@@ -10,7 +10,15 @@ from flask_restful import Resource
 from config import app, db, api, bcrypt
 
 # Add your model imports
-from models import User, Recipe, Ingredient, FavoriteRecipe, RecipeRating, Comment
+from models import (
+    User,
+    Profile,
+    Recipe,
+    Ingredient,
+    FavoriteRecipe,
+    RecipeRating,
+    Comment,
+)
 
 # Views go here!
 
@@ -257,9 +265,7 @@ class FavoriteRecipes(Resource):
         if user.has_favorited(recipe):
             return {"error": "Recipe already favorited by the user"}, 400
 
-       
         favorite_recipe = FavoriteRecipe(user=user, recipe=recipe)
-
 
         db.session.add(favorite_recipe)
         db.session.commit()
@@ -282,7 +288,6 @@ class FavoriteRecipes(Resource):
         if not user or not recipe:
             return {"error": "User or recipe not found"}, 404
 
-       
         favorite_recipe = FavoriteRecipe.query.filter_by(
             user_id=user.id, recipe_id=recipe.id
         ).first()
@@ -349,6 +354,51 @@ class Comments(Resource):
             return make_response({"errors": ["Validation errors"]}, 400)
 
 
+class Profile(Resource):
+    def get(self):
+        profiles = Profile.query.all()
+        return make_response([profile.to_dict() for profile in profiles], 200)
+
+
+class ProfilesById(Resource):
+    def get(self, id):
+        profile = Profile.query.get(id)
+        if profile:
+            return profile.to_dict(), 200
+        return {"error": "Profile not found"}, 404
+
+    def patch(self, id):
+        profile = Profile.query.get(id)
+
+        if not profile:
+            return make_response({"errors": "Profile not found"}, 404)
+
+        data = request.get_json()
+        if "avatar" in data:
+            profile.update_avatar(data["avatar"])  # Update avatar if provided
+
+        try:
+            for attr in data:
+                if attr != "avatar":  # Skip avatar since it's handled separately
+                    setattr(profile, attr, data[attr])
+
+            db.session.commit()
+            return make_response(profile.to_dict(), 200)
+
+        except ValueError:
+            return make_response({"errors": ["validation errors"]}, 400)
+
+    def delete(self, id):
+        profile = Profile.query.get(id)
+        if not profile:
+            return {"errors": "Profile not found"}, 404
+
+        db.session.delete(profile)
+        db.session.commit()
+
+        return {"message": "Profile deleted successfully"}, 204
+
+
 api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 api.add_resource(CheckSession, "/check_session")
@@ -361,5 +411,7 @@ api.add_resource(Ingredients, "/ingredients")
 api.add_resource(FavoriteRecipes, "/favorite_recipes/<int:user_id>/<int:recipe_id>")
 api.add_resource(RecipeRatings, "/recipe_ratings/<int:recipe_id>")
 api.add_resource(Comments, "/users/<int:user_id>/recipes/<int:recipe_id>/comments")
+api.add_resource(Profile, "/profiles")
+api.add_resource(ProfilesById, "/profiles/<int:id>")
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
