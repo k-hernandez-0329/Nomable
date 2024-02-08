@@ -321,7 +321,6 @@ if __name__ == "__main__":
         db.session.commit()
         print("Recipe ratings seeded successfully.")
 
-        # Seed favorite recipes
         print("Seeding favorite recipes...")
         favorite_recipes = create_favorite_recipes(recipes, users)
         db.session.add_all(favorite_recipes)

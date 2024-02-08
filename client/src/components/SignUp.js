@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup"; 
-import { AuthContext } from "./AuthContext"; // Assuming you have an AuthContext defined
+import { AuthContext } from "./AuthContext"; 
 import donut from "../donut.png"; 
 import fried_egg from "../fried-egg.png"; 
 import gummy_bear from "../gummy-bear.png"; 
@@ -29,7 +29,6 @@ function SignUp() {
     } catch (error) {
       console.error("Sign up error:", error);
     } finally {
-      // Reset submitting state regardless of success or failure
       setSubmitting(false);
     }
   };
@@ -52,18 +51,6 @@ function SignUp() {
           <Form className="signup-form">
             <ErrorMessage
               className="signup-error"
-              name="username"
-              component="div"
-            />
-            <Field
-              className="signup-field"
-              type="text"
-              name="username"
-              placeholder="Username"
-            />
-
-            <ErrorMessage
-              className="signup-error"
               name="email"
               component="div"
             />
@@ -72,6 +59,18 @@ function SignUp() {
               type="email"
               name="email"
               placeholder="Email"
+            />
+
+            <ErrorMessage
+              className="signup-error"
+              name="username"
+              component="div"
+            />
+            <Field
+              className="signup-field"
+              type="text"
+              name="username"
+              placeholder="Username"
             />
 
             <ErrorMessage
@@ -85,7 +84,6 @@ function SignUp() {
               name="password"
               placeholder="Password"
             />
-
             <ErrorMessage
               className="signup-error"
               name="avatar"

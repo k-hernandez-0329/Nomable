@@ -166,23 +166,21 @@ class Recipes(Resource):
         if not title or not description or not meal_type or not user_id:
             return make_response({"errors": ["Incomplete data provided"]}, 400)
 
-        # Retrieve or create user (assuming you have a User model)
         user = User.query.get(user_id)
         if not user:
             return make_response({"errors": ["User not found"]}, 404)
 
-        # Create a list to store the final ingredients
         ingredients = []
 
         for name in ingredient_names:
-            # Check if an ingredient with the same name already exists
+
             existing_ingredient = Ingredient.query.filter_by(name=name).first()
 
             if existing_ingredient:
-                # If it exists, use the existing one
+
                 ingredients.append(existing_ingredient)
             else:
-                # If it doesn't exist, create a new ingredient
+
                 new_ingredient = Ingredient(name=name)
                 ingredients.append(new_ingredient)
                 db.session.add(new_ingredient)
@@ -256,14 +254,13 @@ class FavoriteRecipes(Resource):
         if not user or not recipe:
             return {"error": "User or recipe not found"}, 404
 
-        # Check if the recipe is already favorited by the user
         if user.has_favorited(recipe):
             return {"error": "Recipe already favorited by the user"}, 400
 
-        # Instantiate the FavoriteRecipe model
+       
         favorite_recipe = FavoriteRecipe(user=user, recipe=recipe)
 
-        # Add to session and commit to save to the database
+
         db.session.add(favorite_recipe)
         db.session.commit()
 
@@ -275,7 +272,6 @@ class FavoriteRecipes(Resource):
         if not user:
             return {"error": "User not found"}, 404
 
-        # Get the favorite recipes through the relationship
         favorite_recipes = user.favorite_recipes
         return make_response([recipe.to_dict() for recipe in favorite_recipes], 200)
 
@@ -286,7 +282,7 @@ class FavoriteRecipes(Resource):
         if not user or not recipe:
             return {"error": "User or recipe not found"}, 404
 
-        # Check if the recipe is favorited by the user
+       
         favorite_recipe = FavoriteRecipe.query.filter_by(
             user_id=user.id, recipe_id=recipe.id
         ).first()
@@ -294,7 +290,6 @@ class FavoriteRecipes(Resource):
         if not favorite_recipe:
             return {"error": "Recipe is not favorited by the user"}, 400
 
-        # Remove from session and commit to delete from the database
         db.session.delete(favorite_recipe)
         db.session.commit()
 
