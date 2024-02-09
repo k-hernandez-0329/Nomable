@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "./AuthContext";
@@ -10,11 +10,10 @@ import "../index.css";
 
 function SignUp() {
   const { setUser } = useContext(AuthContext);
+  const [signupError, setSignupError] = useState(null);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-
-
       const response = await fetch("/signup", {
         method: "POST",
         headers: {
@@ -31,6 +30,14 @@ function SignUp() {
       setUser(userData);
     } catch (error) {
       console.error("Sign up error:", error);
+      // Check if the error message is related to email or username
+      if (error.message.includes("email")) {
+        setSignupError("Email is already in use");
+      } else if (error.message.includes("username")) {
+        setSignupError("Username is already taken");
+      } else {
+        setSignupError("Sign up failed. Please try again later.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -113,6 +120,8 @@ function SignUp() {
                 <img src={taco} alt="Taco" />
               </label>
             </div>
+
+            {signupError && <div className="error">{signupError}</div>}
 
             <button
               className="signup-submit"

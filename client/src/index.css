@@ -6,19 +6,43 @@
 body {
   background-color: var(--bg);
 }
-/* .navbar {
+
+.menu {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 20px 20px;
-  background-color: #202020;
-  color: white;
-} */
-/* NavBar */
-.menu{
   background-color: #403f3e;
-  padding: 10px 200px;
+  padding: 10px;
   text-align: center;
+  align-items: center;
+  max-height: 30px; /* Limit the maximum height */
+  overflow: hidden; /* Hide overflow content */
+ 
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding: -4px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.user-info p {
+  display: flex;
+  margin-right: 630px;
+  margin-bottom: 15px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-option {
+  width: 30px; 
+  height: 30px; 
+  margin-right: 10px;
+  margin-top: 10px;
+  border-radius: 60%; 
+  cursor: pointer;
 }
 
 .menu a {
@@ -28,53 +52,26 @@ body {
   text-align: center;
 }
 
-/* .menu a:hover {
-  color: #C200FB;
-} */
 
+.logout-button {
+  padding: 2px 8px; /* Adjust padding as needed */
+  background-color: #EC0868; /* Your desired background color */
+  color: #fff; /* Text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Apply border radius for rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  font-size: 16px;
+  margin-right: 12px;
 
-.user-info {
-  background-color: #f0f0f0;
-  padding: 5px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  margin-left: 645px;
-  margin-top: 50px;
 }
 
-.user-info p {
-  margin-right: 10px;
-  margin-bottom: 40px;
-  
+.logout-button:hover {
+  background-color: #d60959; /* Darker shade on hover */
 }
 
-.user-info button {
-  background-color: #ff0000;
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 40px;
- 
+.logout-button:active {
+  transform: translateY(1px); /* Add slight downward movement when clicked */
 }
-
-.user-info button:hover {
-  background-color: #cc0000;
-}
-
-
-/* 
-.login-link {
-  color: #007bff; 
-  text-decoration: none; 
-  font-weight: bold;
-  margin-left: 20px; 
-} */
-
-
-
 
 
 
@@ -118,14 +115,14 @@ body {
 
 
 
-
-
 .search-container {
-  position: fixed;
   display: flex;
-  justify-content: center;
-  margin-top: -110px;
+  align-items: center;
+  justify-content: center; /* Center horizontally */
+  position: relative;
+  margin-top: -170px; /* Adjust the margin from the top */
 }
+
 
 .search-bar {
   padding: 10px;
@@ -137,9 +134,8 @@ body {
   color: white;
   font-size: 16px;
   font-weight: bold;
-  margin-left: 350px;
-  margin-top: -45px;
-  margin-bottom: 35px;
+
+  
 }
 
 .search-bar::placeholder {
@@ -164,7 +160,7 @@ body {
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f9f9f9;
-  margin-top: 70px;
+  margin-top: 150px;
 }
 
 /* Heading styles */
@@ -243,7 +239,7 @@ body {
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f9f9f9;
-  margin-top: 70px;
+  margin-top: 150px;
 }
 
 /* Heading styles */
@@ -373,4 +369,61 @@ body {
 
 .add-ingredient-btn {
   background-color: #2196f3;
+}
+
+
+.profile {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  text-align: center;
+  margin-top: 115px;
+}
+
+.profile h2 {
+  margin-bottom: 20px;
+}
+
+.profile-info {
+  margin-top: 20px;
+}
+
+.profile-info p {
+  margin-bottom: 10px;
+}
+
+.profile-info label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.profile-info input[type="text"],
+.profile-info input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.profile-info button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.profile-info button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #ff0000;
+  margin-top: 5px;
 }

@@ -9,20 +9,21 @@ import SignUp from "./SignUp";
 import Login from "./Login";
 import Home from "./Home";
 import Navbar from "./NavBar";
+import Profile from "./Profile";
 
 
 
 
 function App() {
-   const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
   //  const [recipes, setRecipes] = useState([]);
-   useEffect(() => {
+  useEffect(() => {
     document.title = "Nomable";
     return () => {
       document.title = "Default Tab Name";
     };
-   }, []); 
-  
+  }, []);
+
   //  useEffect(() => {
   //     fetch("/recipes")
   //       .then((res) => res.json())
@@ -30,51 +31,33 @@ function App() {
   //         setRecipes(data);
   //        })
   //    }, []);
-  
 
+  // useEffect(() => {
+  //   fetch("/check_session").then((response) => {
+  //     if (response.ok) {
+  //       response.json().then((user) => setUser(user));
+  //     }
+  //   });
+  // }, []);
 
+  function handleLogin(user) {
+    setUser(user);
+  }
 
-  
+  function handleLogout() {
+    setUser(null);
+  }
 
-    // useEffect(() => {
-    //   fetch("/check_session").then((response) => {
-    //     if (response.ok) {
-    //       response.json().then((user) => setUser(user));
-    //     }
-    //   });
-    // }, []);
-  
-  
-   function handleLogin(user) {
-     setUser(user);
-   }
-
-    function handleLogout() {
-      setUser(null);
-    }
-  
-   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   return (
     <Router>
       <div>
-        <Header user={user} onLogout={handleLogout} />
-        <Navbar />
+        <Header user={user} />
+        <Navbar user={user} onLogout={handleLogout} />
         <SearchBar />
         <Switch>
-          {/* <Route path="/recipes"><RecipeList/></Route> */}
+          <Route path="/profile" component={Profile} />
           <Route path="/signup" component={SignUp} />
-          <Route path="/login" component={Login}>
+          <Route path="/login">
             <Login onLogin={handleLogin} />
           </Route>
           <Route path="/" component={Home} />

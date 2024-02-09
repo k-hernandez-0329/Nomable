@@ -11,9 +11,14 @@ function Profile() {
   const { user, setUser } = useContext(AuthContext);
   const [updateError, setUpdateError] = useState(null);
 
+  if (!user) {
+    // If user is null, return a loading state or handle it accordingly
+    return <div></div>;
+  }
+
   const initialValues = {
     username: user.username,
-    password: "", 
+    password: "",
   };
 
   const validationSchema = Yup.object().shape({
@@ -23,7 +28,6 @@ function Profile() {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      
       const response = await fetch(`/profiles/${user.id}`, {
         method: "PATCH",
         headers: {
@@ -35,14 +39,10 @@ function Profile() {
         throw new Error("Failed to update profile");
       }
 
-      
       setUser({
         ...user,
         username: values.username,
-       
       });
-
-      
     } catch (error) {
       console.error("Profile update error:", error);
       setUpdateError("Failed to update profile. Please try again later.");
@@ -51,7 +51,6 @@ function Profile() {
     }
   };
 
-  
   const renderAvatar = () => {
     switch (user.avatar) {
       case "donut.png":
@@ -81,31 +80,39 @@ function Profile() {
 
   return (
     <div className="profile">
-      <h2>Profile</h2>
+      <h2 className="profile-heading">Profile</h2>
       <div className="profile-info">
-        <div>
-          
-          {renderAvatar()}
-        </div>
+        <div className="avatar-container">{renderAvatar()}</div>
+        <p>
+          <strong>Username:</strong> {user.username}
+        </p>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
-            <Form>
-              <div>
-                <label>Username:</label>
-                <Field type="text" name="username" />
-                <ErrorMessage name="username" />
+            <Form className="profile-form">
+              <div className="form-group">
+                <label htmlFor="username" className="form-label">
+                  Username:
+                </label>
+                <Field type="text" name="username" className="form-input" />
+                <ErrorMessage name="username" className="error" />
               </div>
-              <div>
-                <label>Password:</label>
-                <Field type="password" name="password" />
-                <ErrorMessage name="password" />
+              <div className="form-group">
+                <label htmlFor="password" className="form-label">
+                  Password:
+                </label>
+                <Field type="password" name="password" className="form-input" />
+                <ErrorMessage name="password" className="error" />
               </div>
               {updateError && <div className="error">{updateError}</div>}
-              <button type="submit" disabled={isSubmitting}>
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? "Updating..." : "Update Profile"}
               </button>
             </Form>
