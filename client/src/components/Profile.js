@@ -11,7 +11,7 @@ import { useHistory } from "react-router-dom";
 function Profile() {
   const { user, setUser, handleLogout } = useContext(AuthContext);
   const [updateError, setUpdateError] = useState(null);
-  const [isEditing, setIsEditing] = useState(false); // State to track editing mode
+  const [isEditing, setIsEditing] = useState(false); 
   const history = useHistory();
 
   if (!user) {
@@ -46,7 +46,7 @@ function Profile() {
         username: values.username,
       });
       resetForm();
-      setIsEditing(false); // Exit edit mode after successful update
+      setIsEditing(false);
     } catch (error) {
       console.error("Profile update error:", error);
       setUpdateError("Failed to update profile. Please try again later.");
@@ -116,9 +116,6 @@ function Profile() {
   return (
     <div className="profile">
       <h2 className="profile-heading">{user.username}'s Profile</h2>
-      {/* <p>
-        <strong>Username:</strong> {user.username}
-      </p> */}
       <div className="profile-info">
         <div className="avatar-container">{renderAvatar()}</div>
 
