@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link,useHistory } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
 import "../index.css";
 import donut from "../donut.png";
@@ -9,16 +9,18 @@ import taco from "../taco.png";
 
 
 function Navbar() {
-  const { user, onLogout } = useContext(AuthContext);
+  const { user, handleLogout } = useContext(AuthContext);
+  const history = useHistory();
 
-  function handleLogout() {
+  function logout() {
     console.log("Logging out...");
     fetch("/logout", {
       method: "DELETE",
     })
       .then(() => {
         console.log("Logout successful.");
-        onLogout();
+        handleLogout();
+        history.push("/");
       })
       .catch((error) => {
         console.error("Logout failed:", error);
@@ -26,9 +28,9 @@ function Navbar() {
   }
   const renderAvatar = () => {
     switch (user.avatar) {
-      case "donut.png":
+      case donut:
         return <img src={donut} alt="Donut Avatar" className="avatar-option" />;
-      case "fried-egg.png":
+      case fried_egg:
         return (
           <img
             src={fried_egg}
@@ -36,7 +38,7 @@ function Navbar() {
             className="avatar-option"
           />
         );
-      case "gummy-bear.png":
+      case gummy_bear:
         return (
           <img
             src={gummy_bear}
@@ -44,7 +46,7 @@ function Navbar() {
             className="avatar-option"
           />
         );
-      case "taco.png":
+      case taco:
         return <img src={taco} alt="Taco Avatar" className="avatar-option" />;
       default:
         return <div className="avatar-placeholder">Avatar Not Found</div>;
@@ -61,7 +63,7 @@ function Navbar() {
 
               <Link to="/recipes">Recipes</Link>
               <Link to="/profile">{renderAvatar()}</Link>
-              <button onClick={handleLogout} className="logout-button">
+              <button onClick={logout} className="logout-button">
                 Logout
               </button>
             </>

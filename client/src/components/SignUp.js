@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { useHistory } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "./AuthContext";
@@ -11,6 +12,7 @@ import "../index.css";
 function SignUp() {
   const { setUser } = useContext(AuthContext);
   const [signupError, setSignupError] = useState(null);
+  const history = useHistory();
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
@@ -28,9 +30,9 @@ function SignUp() {
 
       const userData = await response.json();
       setUser(userData);
+      history.push("/");
     } catch (error) {
       console.error("Sign up error:", error);
-      // Check if the error message is related to email or username
       if (error.message.includes("email")) {
         setSignupError("Email is already in use");
       } else if (error.message.includes("username")) {

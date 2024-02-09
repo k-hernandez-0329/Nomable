@@ -12,7 +12,6 @@ function Profile() {
   const [updateError, setUpdateError] = useState(null);
 
   if (!user) {
-    // If user is null, return a loading state or handle it accordingly
     return <div></div>;
   }
 
@@ -53,9 +52,9 @@ function Profile() {
 
   const renderAvatar = () => {
     switch (user.avatar) {
-      case "donut.png":
+      case donut:
         return <img src={donut} alt="Donut Avatar" className="avatar-option" />;
-      case "fried-egg.png":
+      case fried_egg:
         return (
           <img
             src={fried_egg}
@@ -63,7 +62,7 @@ function Profile() {
             className="avatar-option"
           />
         );
-      case "gummy-bear.png":
+      case gummy_bear:
         return (
           <img
             src={gummy_bear}
@@ -71,7 +70,7 @@ function Profile() {
             className="avatar-option"
           />
         );
-      case "taco.png":
+      case taco:
         return <img src={taco} alt="Taco Avatar" className="avatar-option" />;
       default:
         return <div className="avatar-placeholder">Avatar Not Found</div>;

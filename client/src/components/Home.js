@@ -46,13 +46,10 @@ function Home({ isAuthenticated }) {
           {isAuthenticated ? "Recipes" : "Welcome to Nomable!"}
         </h1>
         {isAuthenticated ? (
-          <>
-            <p className="homepage-description">
-              Explore new recipes, save your favorites, and personalize your
-              culinary journey with Nomable.
-            </p>
-           
-          </>
+          <p className="homepage-description">
+            Explore new recipes, save your favorites, and personalize your
+            culinary journey with Nomable.
+          </p>
         ) : (
           <>
             <p className="homepage-description">

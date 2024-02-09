@@ -25,7 +25,7 @@ function handleSubmit(values, { setSubmitting }) {
      
       setUser(user);
       onLogin(user);
-      history.push("/home");
+      history.push("/");
     })
     .catch((error) => {
       console.error("Login error:", error);
