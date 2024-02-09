@@ -115,6 +115,7 @@ function Profile() {
               >
                 {isSubmitting ? "Updating..." : "Update Profile"}
               </button>
+             
             </Form>
           )}
         </Formik>

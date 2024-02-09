@@ -60,7 +60,9 @@ function App() {
           <Route path="/login">
             <Login onLogin={handleLogin} />
           </Route>
-          <Route path="/" component={Home} />
+          <Route path="/">
+            <Home isAuthenticated={user !== null} />
+          </Route>
         </Switch>
         <Footer />
       </div>

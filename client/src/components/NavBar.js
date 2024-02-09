@@ -58,15 +58,16 @@ function Navbar() {
           {user ? (
             <>
               <p>Welcome, {user.username}!</p>
+
+              <Link to="/recipes">Recipes</Link>
+              <Link to="/profile">{renderAvatar()}</Link>
               <button onClick={handleLogout} className="logout-button">
                 Logout
               </button>
-              <Link to="/">Home</Link>
-              <Link to="/recipes">Recipes</Link>
-              <Link to="/profile">{renderAvatar()}</Link>
             </>
           ) : (
             <>
+              <Link to="/">Home</Link>
               <Link to="/login">Log in</Link>
               <Link to="/signup">Sign Up</Link>
             </>
