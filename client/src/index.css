@@ -30,7 +30,7 @@ body {
 
 .user-info p {
   display: flex;
-  margin-right: 630px;
+  margin-right: 700px;
   margin-bottom: 15px;
   flex-direction: column;
   align-items: center;
@@ -43,6 +43,7 @@ body {
   margin-top: 10px;
   border-radius: 60%; 
   cursor: pointer;
+  
 }
 
 .menu a {
@@ -53,25 +54,7 @@ body {
 }
 
 
-.logout-button {
-  padding: 2px 8px; /* Adjust padding as needed */
-  background-color: #EC0868; /* Your desired background color */
-  color: #fff; /* Text color */
-  border: none; /* Remove border */
-  border-radius: 4px; /* Apply border radius for rounded corners */
-  cursor: pointer; /* Change cursor to pointer on hover */
-  font-size: 16px;
-  margin-right: 12px;
 
-}
-
-.logout-button:hover {
-  background-color: #d60959; /* Darker shade on hover */
-}
-
-.logout-button:active {
-  transform: translateY(1px); /* Add slight downward movement when clicked */
-}
 
 
 
@@ -483,7 +466,7 @@ body {
 
 .profile-info button {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #EC0868;
   color: #fff;
   border: none;
   border-radius: 3px;
@@ -498,4 +481,61 @@ body {
 .error {
   color: #ff0000;
   margin-top: 5px;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: -4px;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+
+
+.profile-logout-button {
+  padding: 2px 8px; /* Adjust padding as needed */
+  background-color: #EC0868; /* Your desired background color */
+  color: #fff; /* Text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Apply border radius for rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  font-size: 16px;
+  margin-right: -500px;
+
+}
+
+.profile-logout-button:hover {
+  background-color: #d60959; 
+} 
+
+.profile-logout-button:active{
+  transform: translateY(1px); /* Add slight downward movement when clicked */
+}
+
+.delete-button {
+  background-color: #dc3545; /* Red background color */
+  color: #fff; /* White text color */
+  border: none; /* No border */
+  padding: 10px 20px; /* Padding */
+  font-size: 16px; /* Font size */
+  cursor: pointer; /* Cursor style */
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-bottom: -15px;
+  margin-right: -475px;
+}
+
+.delete-button:hover {
+  background-color: #C200FB; /* Darker red color on hover */
+}
+
+.delete-button:active {
+  background-color: #bd2130; /* Even darker red color when clicked */
 }

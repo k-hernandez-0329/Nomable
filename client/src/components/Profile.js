@@ -6,10 +6,13 @@ import donut from "../donut.png";
 import fried_egg from "../fried-egg.png";
 import gummy_bear from "../gummy-bear.png";
 import taco from "../taco.png";
+import { useHistory } from "react-router-dom";
 
 function Profile() {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, handleLogout } = useContext(AuthContext);
   const [updateError, setUpdateError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false); // State to track editing mode
+  const history = useHistory();
 
   if (!user) {
     return <div></div>;
@@ -25,9 +28,9 @@ function Profile() {
     password: Yup.string().min(6, "Password must be at least 6 characters"),
   });
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const response = await fetch(`/profiles/${user.id}`, {
+      const response = await fetch(`/users/${user.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -42,6 +45,8 @@ function Profile() {
         ...user,
         username: values.username,
       });
+      resetForm();
+      setIsEditing(false); // Exit edit mode after successful update
     } catch (error) {
       console.error("Profile update error:", error);
       setUpdateError("Failed to update profile. Please try again later.");
@@ -49,6 +54,37 @@ function Profile() {
       setSubmitting(false);
     }
   };
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`/users/${user.id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        handleLogout();
+        history.push("/");
+      } else {
+        throw new Error("Failed to delete profile");
+      }
+    } catch (error) {
+      console.error("Profile deletion error:", error);
+    }
+  };
+
+  function logout() {
+    console.log("Logging out...");
+    fetch("/logout", {
+      method: "DELETE",
+    })
+      .then(() => {
+        console.log("Logout successful.");
+        handleLogout();
+        history.push("/");
+      })
+      .catch((error) => {
+        console.error("Logout failed:", error);
+      });
+  }
 
   const renderAvatar = () => {
     switch (user.avatar) {
@@ -79,45 +115,67 @@ function Profile() {
 
   return (
     <div className="profile">
-      <h2 className="profile-heading">Profile</h2>
+      <h2 className="profile-heading">{user.username}'s Profile</h2>
+      {/* <p>
+        <strong>Username:</strong> {user.username}
+      </p> */}
       <div className="profile-info">
         <div className="avatar-container">{renderAvatar()}</div>
-        <p>
-          <strong>Username:</strong> {user.username}
-        </p>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form className="profile-form">
-              <div className="form-group">
-                <label htmlFor="username" className="form-label">
-                  Username:
-                </label>
-                <Field type="text" name="username" className="form-input" />
-                <ErrorMessage name="username" className="error" />
-              </div>
-              <div className="form-group">
-                <label htmlFor="password" className="form-label">
-                  Password:
-                </label>
-                <Field type="password" name="password" className="form-input" />
-                <ErrorMessage name="password" className="error" />
-              </div>
-              {updateError && <div className="error">{updateError}</div>}
-              <button
-                type="submit"
-                className="submit-btn"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Updating..." : "Update Profile"}
-              </button>
-             
-            </Form>
-          )}
-        </Formik>
+
+        {!isEditing && (
+          <button className="edit-button" onClick={() => setIsEditing(true)}>
+            Edit Profile
+          </button>
+        )}
+        <br />
+        {isEditing && (
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting }) => (
+              <Form className="profile-form">
+                <div className="form-group">
+                  <label htmlFor="username" className="form-label">
+                    Username:
+                  </label>
+                  <Field type="text" name="username" className="form-input" />
+                  <ErrorMessage name="username" className="error" />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="password" className="form-label">
+                    Password:
+                  </label>
+                  <Field
+                    type="password"
+                    name="password"
+                    className="form-input"
+                  />
+                  <ErrorMessage name="password" className="error" />
+                </div>
+                {updateError && <div className="error">{updateError}</div>}
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Updating..." : "Update Profile"}
+                </button>
+                <button type="button" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </button>
+              </Form>
+            )}
+          </Formik>
+        )}
+        <button onClick={logout} className="profile-logout-button">
+          Logout
+        </button>
+        <br />
+        <button onClick={handleDelete} className="delete-button">
+          Delete Account
+        </button>
       </div>
     </div>
   );

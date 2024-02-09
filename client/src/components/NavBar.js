@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Link,useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
 import "../index.css";
 import donut from "../donut.png";
@@ -9,23 +9,23 @@ import taco from "../taco.png";
 
 
 function Navbar() {
-  const { user, handleLogout } = useContext(AuthContext);
-  const history = useHistory();
+  const { user } = useContext(AuthContext);
 
-  function logout() {
-    console.log("Logging out...");
-    fetch("/logout", {
-      method: "DELETE",
-    })
-      .then(() => {
-        console.log("Logout successful.");
-        handleLogout();
-        history.push("/");
-      })
-      .catch((error) => {
-        console.error("Logout failed:", error);
-      });
-  }
+
+  // function logout() {
+  //   console.log("Logging out...");
+  //   fetch("/logout", {
+  //     method: "DELETE",
+  //   })
+  //     .then(() => {
+  //       console.log("Logout successful.");
+  //       handleLogout();
+  //       history.push("/");
+  //     })
+  //     .catch((error) => {
+  //       console.error("Logout failed:", error);
+  //     });
+  // }
   const renderAvatar = () => {
     switch (user.avatar) {
       case donut:
@@ -63,9 +63,7 @@ function Navbar() {
 
               <Link to="/recipes">Recipes</Link>
               <Link to="/profile">{renderAvatar()}</Link>
-              <button onClick={logout} className="logout-button">
-                Logout
-              </button>
+             
             </>
           ) : (
             <>

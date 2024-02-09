@@ -3,7 +3,7 @@
 # Standard library imports
 
 # Remote library imports
-from flask import request, session, make_response
+from flask import request, session, make_response, jsonify
 from flask_restful import Resource
 
 # Local imports
@@ -364,7 +364,7 @@ class ProfilesById(Resource):
     def get(self, id):
         profile = Profile.query.get(id)
         if profile:
-            return profile.to_dict(), 200
+            return jsonify(profile.serialize()), 200
         return {"error": "Profile not found"}, 404
 
     def patch(self, id):
@@ -383,7 +383,7 @@ class ProfilesById(Resource):
                     setattr(profile, attr, data[attr])
 
             db.session.commit()
-            return make_response(profile.to_dict(), 200)
+            return jsonify(profile.serialize()), 200
 
         except ValueError:
             return make_response({"errors": ["validation errors"]}, 400)

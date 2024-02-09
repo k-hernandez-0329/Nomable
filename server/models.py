@@ -76,7 +76,7 @@ class Profile(db.Model, SerializerMixin):
     user = db.relationship("User", back_populates="profile")
     favorite_recipes = db.relationship("FavoriteRecipe", back_populates="profile")
 
-    serialize_rules = ("-user.profile", "-favorite_recipes.profile")
+    serialize_only = ("id", "user_id", "avatar")  # Specify fields to serialize
 
     def update_avatar(self, new_avatar):
         self.avatar = new_avatar

@@ -53,17 +53,17 @@ function App() {
 
   function handleLogout() {
     setUser(null);
-     history.push("/");
+    history.push("/");
   }
 
   return (
     <Router>
       <div>
         <Header user={user} />
-        {user && <Navbar user={user} onLogout={handleLogout} />}
+        {user && <Navbar user={user} />}
         <SearchBar />
         <Switch>
-          <Route path="/profile" component={Profile} />
+          <Route path="/profile" component={Profile} onLogout={handleLogout} />
           <Route path="/signup" component={SignUp} />
           <Route path="/login">
             <Login onLogin={handleLogin} />
