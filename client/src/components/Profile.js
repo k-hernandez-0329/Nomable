@@ -19,7 +19,7 @@ function Profile() {
   }
 
   const initialValues = {
-    username: user.username,
+    username: "",
     password: "",
   };
 
@@ -55,7 +55,11 @@ function Profile() {
     }
   };
 
-  const handleDelete = async () => {
+const handleDelete = async () => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete your account?"
+  );
+  if (confirmDelete) {
     try {
       const response = await fetch(`/users/${user.id}`, {
         method: "DELETE",
@@ -69,7 +73,8 @@ function Profile() {
     } catch (error) {
       console.error("Profile deletion error:", error);
     }
-  };
+  }
+};
 
   function logout() {
     console.log("Logging out...");

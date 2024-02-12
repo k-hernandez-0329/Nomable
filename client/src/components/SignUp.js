@@ -31,15 +31,15 @@ function SignUp() {
       const userData = await response.json();
       setUser(userData);
       history.push("/");
-    } catch (error) {
-      console.error("Sign up error:", error);
-      if (error.message.includes("email")) {
-        setSignupError("Email is already in use");
-      } else if (error.message.includes("username")) {
-        setSignupError("Username is already taken");
-      } else {
-        setSignupError("Sign up failed. Please try again later.");
-      }
+    }catch (error) {
+  console.error("Sign up error:", error);
+  if (error.message.includes("email")) {
+    setSignupError("Email is already in use");
+  } else if (error.message.includes("username")) {
+    setSignupError("Username is already taken");
+  } else {
+    setSignupError("Sign up failed. Please try again later.");
+  }
     } finally {
       setSubmitting(false);
     }

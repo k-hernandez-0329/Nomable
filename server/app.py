@@ -81,14 +81,15 @@ class SignUp(Resource):
         username = json_data.get("username")
         password = json_data.get("password")
         avatar = json_data.get("avatar")
+
         if not username or not email or not password:
-            return {"error": "Username, Email, and password are required"}, 400
+            return {"error": "Username, Email, and Password are required"}, 400
 
         if (
             User.query.filter_by(username=username).first()
             or User.query.filter_by(email=email).first()
         ):
-            return {"error": "Username or email is already taken"}, 400
+            return {"error": "Username or Email is already taken"}, 400
 
         hashed_password = bcrypt.generate_password_hash(
             password.encode("utf-8")
@@ -129,19 +130,39 @@ class UsersById(Resource):
 
         data = request.get_json()
         if "avatar" in data:
-            user.avatar = data["avatar"]
-
+            user.profile.update_avatar(data["avatar"])
         try:
             for attr in data:
-                if attr in data:
+                if attr != "avatar":
                     setattr(user, attr, data[attr])
 
-            db.session.add(user)
             db.session.commit()
             return make_response(user.to_dict(), 200)
 
         except ValueError:
             return make_response({"errors": ["validation errors"]}, 400)
+
+    # def patch(self, id):
+    #     user = User.query.get(id)
+
+    #     if not user:
+    #         return make_response({"errors": "User not found"}, 404)
+
+    #     data = request.get_json()
+    #     if "avatar" in data:
+    #         user.avatar = data["avatar"]
+
+    #     try:
+    #         for attr in data:
+    #             if attr in data:
+    #                 setattr(user, attr, data[attr])
+
+    #         db.session.add(user)
+    #         db.session.commit()
+    #         return make_response(user.to_dict(), 200)
+
+    #     except ValueError:
+    #         return make_response({"errors": ["validation errors"]}, 400)
 
     def delete(self, id):
         user = User.query.get(id)
@@ -355,9 +376,17 @@ class Comments(Resource):
 
 
 class Profile(Resource):
-    def get(self):
-        profiles = Profile.query.all()
-        return make_response([profile.to_dict() for profile in profiles], 200)
+
+    def get(self, id):
+        profile = Profile.query.get(id)
+        if profile:
+            return profile.to_dict(), 200
+        return {"error": "Profile not found"}, 404
+
+
+# def get(self):
+#     profiles = Profile.query.all()
+#     return make_response([profile.to_dict() for profile in profiles], 200)
 
 
 class ProfilesById(Resource):

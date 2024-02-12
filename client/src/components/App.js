@@ -25,14 +25,7 @@ function App() {
     };
   }, []);
 
-  //  useEffect(() => {
-  //     fetch("/recipes")
-  //       .then((res) => res.json())
-  //       .then((data) => {
-  //         setRecipes(data);
-  //        })
-  //    }, []);
-
+  
   //  useEffect(() => {
     
   //    fetch("/check_session")
