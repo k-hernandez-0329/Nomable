@@ -6,6 +6,7 @@ import "../index.css";
 function Home({ isAuthenticated }) {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
   const [recipes, setRecipes] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -26,8 +27,19 @@ function Home({ isAuthenticated }) {
           console.error("Error fetching recipes:", error);
           setRecipes([]); 
         });
+
+      fetch("/ingredients")
+        .then((res) => res.json())
+        .then((data) => {
+          setIngredients(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching ingredients:", error);
+          setIngredients([]); 
+        });
     } else {
       setRecipes([]);
+      setIngredients([]);
     }
   }, [isAuthenticated]);
 
@@ -73,12 +85,23 @@ function Home({ isAuthenticated }) {
                 recipes.map((recipes, index) => (
                   <div key={index} className="meal-placeholder">
                     <h2>{recipes.title}</h2>
+                    <img src={recipes.image_url} alt={recipes.title} />
                     <p>{recipes.description}</p>
                     <p>{recipes.instructions}</p>
                     <p>{recipes.meal_type}</p>
-                    <img src={recipes.image_url} alt={recipes.title} />
-                  </div>
+                    <ul>
+                      {recipes.ingredients && recipes.ingredients.length > 0 ? (
+                       recipes.ingredients.map((ingredient, idx) => (
+                         <li key={idx}>{ingredient.name}</li>
+                      ))
+                  ) : (
+                    <li>No ingredients available</li>
+                    )}
+                  </ul>
+                </div>
+                                
                 ))
+                 
               ) : (
                 <p>No recipes available</p>
               )}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Switch, Route, useHistory } from "react-router-dom";
 import Header from "./Header"
 import "../index.css";
-// import RecipeList from "./RecipeList"
+import RecipeList from "./RecipeList"
 import Footer from "./Footer";
 import SearchBar from "./SearchBar";
 import SignUp from "./SignUp";
@@ -17,7 +17,7 @@ import Profile from "./Profile";
 function App() {
   const [user, setUser] = useState(null);
   const history = useHistory();
-  //  const [recipes, setRecipes] = useState([]);
+
   useEffect(() => {
     document.title = "Nomable";
     return () => {
@@ -56,6 +56,7 @@ function App() {
         {user && <Navbar user={user} />}
         <SearchBar />
         <Switch>
+          <Route path="/recipes" component={RecipeList} />
           <Route path="/profile" component={Profile} onLogout={handleLogout} />
           <Route path="/signup" component={SignUp} />
           <Route path="/login">
