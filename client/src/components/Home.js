@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-
 import { Link } from "react-router-dom";
 import moment from "moment";
 import "../index.css";
@@ -11,6 +10,7 @@ function Home({ isAuthenticated, user_id }) {
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [recipeRatings, setRecipeRatings] = useState([]);
   const [newRating, setNewRating] = useState(0);
+  const [selectedRating, setSelectedRating] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -18,7 +18,7 @@ function Home({ isAuthenticated, user_id }) {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, []);
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -41,11 +41,29 @@ function Home({ isAuthenticated, user_id }) {
           console.error("Error fetching ingredients:", error);
           setIngredients([]);
         });
+
+      fetch("/recipe_ratings")
+        .then((res) => res.json())
+        .then((data) => {
+          setRecipeRatings(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching recipe ratings:", error);
+          setRecipeRatings([]);
+        });
     } else {
       setRecipes([]);
       setIngredients([]);
+      setRecipeRatings([]);
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    // Fetch favorite recipes when user_id changes
+    if (user_id) {
+      fetchFavoriteRecipes(user_id);
+    }
+  }, [user_id]);
 
   function calculateTimeLeft() {
     const currentDate = moment();
@@ -63,12 +81,7 @@ function Home({ isAuthenticated, user_id }) {
     };
   }
 
-  const handleFavorite = (userId, recipeId) => {
-    if (!userId) {
-      console.error("User ID is undefined");
-      return;
-    }
-
+  const handleFavorite = (recipeId) => {
     const updatedRecipes = [...recipes];
     const recipeIndex = updatedRecipes.findIndex(
       (recipe) => recipe.id === recipeId
@@ -85,19 +98,24 @@ function Home({ isAuthenticated, user_id }) {
     };
     setRecipes(updatedRecipes);
 
-    // Update favorite recipes if necessary
     const updatedFavoriteRecipes = updatedRecipes.filter(
       (recipe) => recipe.favorited
     );
     setFavoriteRecipes(updatedFavoriteRecipes);
 
+    // Update favorite recipes on the server
+    const favorited = updatedRecipes[recipeIndex].favorited;
+    updateFavoriteRecipeOnServer(user_id, recipeId, favorited);
+  };
+
+  const updateFavoriteRecipeOnServer = (userId, recipeId, favorited) => {
     fetch(`/favorite_recipes/${userId}/${recipeId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        favorited: updatedRecipes[recipeIndex].favorited,
+        favorited: favorited,
       }),
     })
       .then((response) => {
@@ -105,14 +123,52 @@ function Home({ isAuthenticated, user_id }) {
           throw new Error("Failed to update favorite status");
         }
       })
+      .then(() => {
+        // Fetch favorite recipes again to update the state
+        fetchFavoriteRecipes(userId);
+      })
       .catch((error) => {
         console.error("Error updating favorite status:", error);
-        setRecipes(recipes); // Revert the local changes if there's an error
       });
   };
-  const handleRateRecipe = (recipeId) => {
-    if (newRating < 1 || newRating > 5) {
-      console.error("Invalid rating value:", newRating);
+
+  const fetchFavoriteRecipes = async (userId) => {
+    try {
+      const response = await fetch(`/favorite_recipes/${userId}`);
+      if (response.ok) {
+        const favoriteRecipesData = await response.json();
+        setFavoriteRecipes(favoriteRecipesData);
+      } else {
+        throw new Error("Failed to fetch favorite recipes");
+      }
+    } catch (error) {
+      console.error("Error fetching favorite recipes:", error);
+    }
+  };
+
+
+  const updateRecipeRating = (recipeId, rating) => {
+       // Find the index of the recipe rating in the array
+       const index = recipeRatings.findIndex(
+         (rating) => rating.recipe_id === recipeId
+       );
+       if (index !== -1) {
+         // Update the existing rating if found
+         const updatedRatings = [...recipeRatings];
+         updatedRatings[index] = { recipe_id: recipeId, value: rating };
+         setRecipeRatings(updatedRatings);
+       } else {
+         // Add a new rating if not found
+         setRecipeRatings((prevRatings) => [
+           ...prevRatings,
+           { recipe_id: recipeId, value: rating },
+         ]);
+       }
+     };
+
+  const handleRateRecipe = (recipeId, rating) => {
+    if (rating < 1 || rating > 5) {
+      console.error("Invalid rating value:", rating);
       return;
     }
 
@@ -121,34 +177,31 @@ function Home({ isAuthenticated, user_id }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ user_id: user_id, recipe_rating: newRating }),
+      body: JSON.stringify({
+        user_id: user_id,
+        recipe_id: recipeId,
+        rating: rating,
+      }),
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to rate recipe");
         }
-        // Logic to update recipe ratings
-        const updatedRecipeRatings = recipeRatings.map((recipeRating) => {
-          if (recipeRating.recipeId === recipeId) {
-            return {
-              ...recipeRating,
-              ratings: [...recipeRating.ratings, { value: newRating }],
-            };
-          }
-          return recipeRating;
-        });
-        setRecipeRatings(updatedRecipeRatings);
-        setNewRating(0); // Reset the new rating after submitting
+        // Update the rating state for the specific recipe
+        const updatedRatings = [...recipeRatings];
+        const index = updatedRatings.findIndex((r) => r.recipe_id === recipeId);
+        if (index !== -1) {
+          updatedRatings[index] = { recipe_id: recipeId, value: rating };
+        } else {
+          updatedRatings.push({ recipe_id: recipeId, value: rating });
+        }
+        setRecipeRatings(updatedRatings);
+        // Update the selected rating state
+        setSelectedRating(rating);
       })
       .catch((error) => {
         console.error("Error rating recipe:", error);
       });
-  };
-
-  // Add a function to handle rating change
-  const handleRatingChange = (event) => {
-    const rating = parseInt(event.target.value);
-    setNewRating(rating);
   };
 
   return (
@@ -190,19 +243,44 @@ function Home({ isAuthenticated, user_id }) {
                         <li>No ingredients available</li>
                       )}
                     </ul>
-                    <button onClick={() => handleFavorite(user_id, recipe.id)}>
+                    <button onClick={() => handleFavorite(recipe.id)}>
                       {recipe.favorited ? "Unfavorite" : "Favorite"}
                     </button>
-                    <button onClick={() => handleRateRecipe(recipe.id)}>
-                      Rate Recipe
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={newRating}
-                      onChange={handleRatingChange}
-                    />
+
+                    <div>
+                      Rate This Recipe!
+                      <br />
+                      {[1, 2, 3, 4, 5].map((rating) => (
+                        <span
+                          key={rating}
+                          onClick={() => handleRateRecipe(recipe.id, rating)}
+                          style={{
+                            cursor: "pointer",
+                            color:
+                              Array.isArray(recipeRatings) &&
+                              recipeRatings.find(
+                                (r) => r.recipe_id === recipe.id
+                              )?.value >= rating
+                                ? "gold"
+                                : "gray",
+                            fontSize: "24px",
+                            marginRight: "5px",
+                          }}
+                        >
+                          &#9733; {/* Unicode character for a star */}
+                        </span>
+                      ))}
+                    </div>
+                    {/* <div>
+                      <h3>Recipe Ratings</h3>
+                      <ul>
+                        {recipeRatings
+                          .filter((rating) => rating.recipe_id === recipe.id)
+                          .map((filteredRating, index) => (
+                            <li key={index}>Rating: {filteredRating.value}</li>
+                          ))}
+                      </ul>
+                    </div> */}
                   </div>
                 ))
               ) : (
@@ -247,8 +325,20 @@ function Home({ isAuthenticated, user_id }) {
 }
 
 export default Home;
-// function Home({ isAuthenticated }) {
+
+// import React, { useState, useEffect } from "react";
+// import { Link } from "react-router-dom";
+// import moment from "moment";
+// import "../index.css";
+
+// function Home({ isAuthenticated, user_id }) {
 //   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+//   const [recipes, setRecipes] = useState([]);
+//   const [ingredients, setIngredients] = useState([]);
+//   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+//   const [recipeRatings, setRecipeRatings] = useState([]);
+//   const [newRating, setNewRating] = useState(0);
+//   const [selectedRating, setSelectedRating] = useState(0);
 
 //   useEffect(() => {
 //     const timer = setTimeout(() => {
@@ -257,6 +347,60 @@ export default Home;
 
 //     return () => clearTimeout(timer);
 //   });
+
+//   useEffect(() => {
+//     if (isAuthenticated) {
+//       fetch("/recipes")
+//         .then((res) => res.json())
+//         .then((data) => {
+//           setRecipes(data);
+//         })
+//         .catch((error) => {
+//           console.error("Error fetching recipes:", error);
+//           setRecipes([]);
+//         });
+
+//       fetch("/ingredients")
+//         .then((res) => res.json())
+//         .then((data) => {
+//           setIngredients(data);
+//         })
+//         .catch((error) => {
+//           console.error("Error fetching ingredients:", error);
+//           setIngredients([]);
+//         });
+
+//       fetch("/recipe_ratings")
+//         .then((res) => res.json())
+//         .then((data) => {
+//           // Ensure data is an array
+//           if (Array.isArray(data)) {
+//             // Ensure each item has recipeId and rating properties
+//             const isValidData = data.every(
+//               (item) => "recipeId" in item && "rating" in item
+//             );
+//             if (isValidData) {
+//               setRecipeRatings(data);
+//             } else {
+//               console.error("Invalid data format for recipe ratings:", data);
+//               setRecipeRatings([]);
+//             }
+//           } else {
+//             console.error("Invalid data format for recipe ratings:", data);
+//             setRecipeRatings([]);
+//           }
+//         })
+//         .catch((error) => {
+//           console.error("Error fetching recipe ratings:", error);
+//           setRecipeRatings([]);
+//         });
+//   } else {
+//     setRecipes([]);
+//     setIngredients([]);
+//     setRecipeRatings([]);
+//   }
+
+//   }, [isAuthenticated]);
 
 //   function calculateTimeLeft() {
 //     const currentDate = moment();
@@ -273,6 +417,81 @@ export default Home;
 //       seconds: seconds < 10 ? `0${seconds}` : seconds,
 //     };
 //   }
+
+//   const handleFavorite = (userId, recipeId) => {
+//     if (!userId) {
+//       console.error("User ID is undefined");
+//       return;
+//     }
+
+//     const updatedRecipes = [...recipes];
+//     const recipeIndex = updatedRecipes.findIndex(
+//       (recipe) => recipe.id === recipeId
+//     );
+
+//     if (recipeIndex === -1) {
+//       console.error("Recipe not found");
+//       return;
+//     }
+
+//     updatedRecipes[recipeIndex] = {
+//       ...updatedRecipes[recipeIndex],
+//       favorited: !updatedRecipes[recipeIndex].favorited,
+//     };
+//     setRecipes(updatedRecipes);
+
+//     const updatedFavoriteRecipes = updatedRecipes.filter(
+//       (recipe) => recipe.favorited
+//     );
+//     setFavoriteRecipes(updatedFavoriteRecipes);
+
+//     fetch(`/favorite_recipes/${userId}/${recipeId}`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         favorited: updatedRecipes[recipeIndex].favorited,
+//       }),
+//     })
+//       .then((response) => {
+//         if (!response.ok) {
+//           throw new Error("Failed to update favorite status");
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error updating favorite status:", error);
+//         setRecipes(recipes);
+//       });
+//   };
+
+// const handleRateRecipe = (recipeId, rating) => {
+//   if (rating < 1 || rating > 5) {
+//     console.error("Invalid rating value:", rating);
+//     return;
+//   }
+
+//   // Toggle the rating when clicking on the same rating again
+//   const newRating = selectedRating === rating ? 0 : rating;
+
+//   fetch(`/recipe_ratings/${recipeId}`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ user_id: user_id, recipe_rating: newRating }),
+//   })
+//     .then((response) => {
+//       if (!response.ok) {
+//         throw new Error("Failed to rate recipe");
+//       }
+//       // Update the selected rating after successful rating
+//       setSelectedRating(newRating);
+//     })
+//     .catch((error) => {
+//       console.error("Error rating recipe:", error);
+//     });
+// };
 
 //   return (
 //     <div className="container">
@@ -291,25 +510,55 @@ export default Home;
 //         </h1>
 //         {isAuthenticated ? (
 //           <>
-//          <p className="homepage-description">
+//             <p className="homepage-description">
 //               Explore new recipes, save your favorites, and personalize your
 //               culinary journey with Nomable.
 //             </p>
-
 //             <div className="meal-placeholder-container">
+//               {recipes.length > 0 ? (
+//                 recipes.map((recipe, index) => (
+//                   <div key={index} className="meal-placeholder">
+//                     <h2>{recipe.title}</h2>
+//                     <img src={recipe.image_url} alt={recipe.title} />
+//                     <p>{recipe.description}</p>
+//                     <p>Instructions: {recipe.instructions}</p>
+//                     <p>Meal Type: {recipe.meal_type}</p>
+//                     <ul>
+//                       {recipe.ingredients && recipe.ingredients.length > 0 ? (
+//                         recipe.ingredients.map((ingredient, idx) => (
+//                           <li key={idx}>{ingredient.name}</li>
+//                         ))
+//                       ) : (
+//                         <li>No ingredients available</li>
+//                       )}
+//                     </ul>
+//                     <button onClick={() => handleFavorite(user_id, recipe.id)}>
+//                       {recipe.favorited ? "Unfavorite" : "Favorite"}
+//                     </button>
 
-//             <div className="meal-placeholder">
-//               <h2>Breakfast Placeholder</h2>
-
-//             </div>
-//             <div className="meal-placeholder">
-//               <h2>Lunch Placeholder</h2>
-
-//             </div>
-//             <div className="meal-placeholder">
-//               <h2>Dinner Placeholder</h2>
-
-//             </div>
+//                     <div>
+//                       Rate This Recipe!
+//                       <br />
+//                       {[1, 2, 3, 4, 5].map((rating) => (
+//                         <span
+//                           key={rating}
+//                           onClick={() => handleRateRecipe(recipe.id, rating)}
+//                           style={{
+//                             cursor: "pointer",
+//                             color: selectedRating >= rating ? "gold" : "gray",
+//                             fontSize: "24px",
+//                             marginRight: "5px",
+//                           }}
+//                         >
+//                           &#9733; {/* Unicode character for a star */}
+//                         </span>
+//                       ))}
+//                     </div>
+//                   </div>
+//                 ))
+//               ) : (
+//                 <p>No recipes available</p>
+//               )}
 //             </div>
 //           </>
 //         ) : (

@@ -120,7 +120,7 @@ const handleDelete = async () => {
 
   return (
     <div className="profile">
-      <h2 className="profile-heading">{user.username}'s Profile</h2>
+      <h2 className="profile-heading">{user.username}'s Account</h2>
       <div className="profile-info">
         <div className="avatar-container">{renderAvatar()}</div>
 

@@ -1,153 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import React from "react";
 import RecipeCard from "./RecipeCard";
 
-function RecipeList() {
-  const [recipes, setRecipes] = useState([]);
-
-  // useEffect(() => {
-  //   fetchRecipes();
-  // }, []);
-
-  // const fetchRecipes = async () => {
-  //   try {
-  //     const response = await fetch("/recipes");
-  //     if (!response.ok) {
-  //       throw new Error("Failed to fetch recipes");
-  //     }
-  //     const data = await response.json();
-  //     setRecipes(data);
-  //   } catch (error) {
-  //     console.error("Error fetching recipes:", error);
-  //   }
-  // };
-
-  const initialValues = {
-    title: "",
-    description: "",
-    instructions: "",
-    image_url: "",
-    meal_type: "",
-    ingredients: [],
-  };
-
-  const validationSchema = Yup.object().shape({
-    title: Yup.string().required("Title is required"),
-    description: Yup.string().required("Description is required"),
-    instructions: Yup.string().required("Instructions are required"),
-    image_url: Yup.string().url("Invalid URL"),
-    meal_type: Yup.string().required("Meal type is required"),
-  });
-
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    try {
-      const response = await fetch("/recipes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add recipe");
-      }
-      const data = await response.json();
-      setRecipes([...recipes, data]);
-      resetForm();
-    } catch (error) {
-      console.error("Error adding recipe:", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
+function RecipeList({ favoriteRecipes }) {
   return (
-    <div className="recipe-list">
-      <div className="recipe-form">
-        <h2>Recipes</h2>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form>
-              <div className="form-group">
-                <label>Title:</label>
-                <Field type="text" name="title" />
-                <ErrorMessage
-                  name="title"
-                  component="div"
-                  className="error-message"
-                />
-              </div>
-              <div className="form-group">
-                <label>Description:</label>
-                <Field type="text" name="description" />
-                <ErrorMessage
-                  name="description"
-                  component="div"
-                  className="error-message"
-                />
-              </div>
-              <div className="form-group">
-                <label>Instructions:</label>
-                <Field type="text" name="instructions" />
-                <ErrorMessage
-                  name="instructions"
-                  component="div"
-                  className="error-message"
-                />
-              </div>
-              <div className="form-group">
-                <label>Image URL:</label>
-                <Field type="text" name="image_url" />
-                <ErrorMessage
-                  name="image_url"
-                  component="div"
-                  className="error-message"
-                />
-              </div>
-              <div className="form-group">
-                <label>Meal Type:</label>
-                <Field
-                  type="text"
-                  name="meal_type"
-                  placeholder="Breakfast/Lunch/Dinner..."
-                />
-                <ErrorMessage
-                  name="meal_type"
-                  component="div"
-                  className="error-message"
-                />
-              </div>
-              <div className="form-group ingredients-group">
-                <label>Ingredients:</label>
-                <Field
-                  type="text"
-                  name="ingredients"
-                  placeholder="Enter ingredients separated by commas"
-                />
-                <ErrorMessage
-                  name="ingredients"
-                  component="div"
-                  className="error-message"
-                />
-              </div>
-
-              <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Adding Recipe..." : "Add Recipe"}
-              </button>
-            </Form>
-          )}
-        </Formik>
-      </div>
-      <div className="recipe-cards">
-        {recipes.map((recipe) => (
-          <RecipeCard key={recipe.id} recipe={recipe} />
-        ))}
-      </div>
+    <div className="recipe-cards">
+      {/* Display favorite recipes */}
+      {favoriteRecipes.length > 0 ? (
+        <div>
+          <h2>Favorite Recipes</h2>
+          {favoriteRecipes.map((recipe) => (
+            <RecipeCard key={recipe.id} recipe={recipe} />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -327,7 +327,7 @@ class RecipeRatings(Resource):
     def post(self, recipe_id):
         data = request.get_json()
         user_id = data.get("user_id")
-        rating_value = data.get("recipe_rating")
+        rating_value = data.get("rating")
 
         if not user_id or not rating_value:
             return {"error": "User ID and recipe rating are required"}, 400
