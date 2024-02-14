@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import "../index.css";
-
 import RecipeCard from "./RecipeCard";
 
 function RecipeList() {
   const [recipes, setRecipes] = useState([]);
+
+  // useEffect(() => {
+  //   fetchRecipes();
+  // }, []);
+
+  // const fetchRecipes = async () => {
+  //   try {
+  //     const response = await fetch("/recipes");
+  //     if (!response.ok) {
+  //       throw new Error("Failed to fetch recipes");
+  //     }
+  //     const data = await response.json();
+  //     setRecipes(data);
+  //   } catch (error) {
+  //     console.error("Error fetching recipes:", error);
+  //   }
+  // };
 
   const initialValues = {
     title: "",
@@ -25,38 +40,38 @@ function RecipeList() {
     meal_type: Yup.string().required("Meal type is required"),
   });
 
-
-  const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    fetch("/recipes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setRecipes([...recipes, data]);
-        resetForm();
-      })
-      .catch((error) => {
-        console.error("Error creating recipe:", error);
-      })
-      .finally(() => {
-        setSubmitting(false);
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const response = await fetch("/recipes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
       });
+      if (!response.ok) {
+        throw new Error("Failed to add recipe");
+      }
+      const data = await response.json();
+      setRecipes([...recipes, data]);
+      resetForm();
+    } catch (error) {
+      console.error("Error adding recipe:", error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="recipe-list">
-      <h2>Recipes</h2>
       <div className="recipe-form">
+        <h2>Recipes</h2>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting, values }) => (
+          {({ isSubmitting }) => (
             <Form>
               <div className="form-group">
                 <label>Title:</label>
@@ -109,35 +124,16 @@ function RecipeList() {
               </div>
               <div className="form-group ingredients-group">
                 <label>Ingredients:</label>
-                <FieldArray name="ingredients">
-                  {({ push, remove }) => (
-                    <div className="ingredients-list">
-                      {values.ingredients.map((ingredient, index) => (
-                        <div key={index}>
-                          <Field
-                            type="text"
-                            name={`ingredients.${index}`}
-                            placeholder="Enter ingredient"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => remove(index)}
-                            className="remove-ingredient-btn"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => push("")}
-                        className="add-ingredient-btn"
-                      >
-                        Add Ingredient
-                      </button>
-                    </div>
-                  )}
-                </FieldArray>
+                <Field
+                  type="text"
+                  name="ingredients"
+                  placeholder="Enter ingredients separated by commas"
+                />
+                <ErrorMessage
+                  name="ingredients"
+                  component="div"
+                  className="error-message"
+                />
               </div>
 
               <button type="submit" disabled={isSubmitting}>

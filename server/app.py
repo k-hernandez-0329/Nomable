@@ -274,24 +274,21 @@ class Ingredients(Resource):
         )
 
 
+favorite_recipes = {}
+
+
 class FavoriteRecipes(Resource):
-
     def post(self, user_id, recipe_id):
-        user = User.query.get(user_id)
-        recipe = Recipe.query.get(recipe_id)
+        if user_id not in favorite_recipes:
+            favorite_recipes[user_id] = set()
 
-        if not user or not recipe:
-            return {"error": "User or recipe not found"}, 404
-
-        if user.has_favorited(recipe):
-            return {"error": "Recipe already favorited by the user"}, 400
-
-        favorite_recipe = FavoriteRecipe(user=user, recipe=recipe)
-
-        db.session.add(favorite_recipe)
-        db.session.commit()
-
-        return {"message": "Recipe favorited successfully"}, 201
+        # Check if the recipe is already favorited by the user
+        if recipe_id in favorite_recipes[user_id]:
+            favorite_recipes[user_id].remove(recipe_id)
+            return {"message": "Recipe unfavorited successfully"}, 200
+        else:
+            favorite_recipes[user_id].add(recipe_id)
+            return {"message": "Recipe favorited successfully"}, 201
 
     def get(self, user_id):
         user = User.query.get(user_id)
@@ -299,47 +296,24 @@ class FavoriteRecipes(Resource):
         if not user:
             return {"error": "User not found"}, 404
 
-        favorite_recipes = user.favorite_recipes
+        favorite_recipe_ids = favorite_recipes.get(user_id, [])
+        favorite_recipes = Recipe.query.filter(Recipe.id.in_(favorite_recipe_ids)).all()
+
         return make_response([recipe.to_dict() for recipe in favorite_recipes], 200)
 
     def delete(self, user_id, recipe_id):
-        user = User.query.get(user_id)
-        recipe = Recipe.query.get(recipe_id)
-
-        if not user or not recipe:
-            return {"error": "User or recipe not found"}, 404
-
-        favorite_recipe = FavoriteRecipe.query.filter_by(
-            user_id=user.id, recipe_id=recipe.id
-        ).first()
-
-        if not favorite_recipe:
+        if (
+            user_id not in favorite_recipes
+            or recipe_id not in favorite_recipes[user_id]
+        ):
             return {"error": "Recipe is not favorited by the user"}, 400
 
-        db.session.delete(favorite_recipe)
-        db.session.commit()
+        favorite_recipes[user_id].remove(recipe_id)
 
         return {"message": "Recipe unfavorited successfully"}, 204
 
 
 class RecipeRatings(Resource):
-
-    def post(self, recipe_id):
-        data = request.get_json()
-        rating_value = data.get("rating")
-
-        recipe = Recipe.query.get(recipe_id)
-        if not recipe:
-            return {"error": "Recipe not found"}, 404
-
-        new_rating = RecipeRating(rating=rating_value, recipe=recipe)
-
-        try:
-            db.session.add(new_rating)
-            db.session.commit()
-            return {"message": "Rating added successfully"}, 201
-        except ValueError as e:
-            return {"error": f"Invalid rating value. {str(e)}"}, 400
 
     def get(self, recipe_id):
         recipe = Recipe.query.get(recipe_id)
@@ -347,8 +321,34 @@ class RecipeRatings(Resource):
         if not recipe:
             return {"error": "Recipe not found"}, 404
 
-        ratings = recipe.recipe_ratings
+        ratings = RecipeRating.query.filter_by(recipe_id=recipe_id).all()
         return make_response([rating.to_dict() for rating in ratings], 200)
+
+    def post(self, recipe_id):
+        data = request.get_json()
+        user_id = data.get("user_id")
+        rating_value = data.get("recipe_rating")
+
+        if not user_id or not rating_value:
+            return {"error": "User ID and recipe rating are required"}, 400
+
+        recipe = Recipe.query.get(recipe_id)
+        if not recipe:
+            return {"error": "Recipe not found"}, 404
+
+        new_rating = RecipeRating(rating=rating_value, recipe=recipe, user_id=user_id)
+
+        try:
+            db.session.add(new_rating)
+            db.session.commit()
+
+            # Fetch all ratings for the recipe after adding the new rating
+            ratings = RecipeRating.query.filter_by(recipe_id=recipe_id).all()
+            ratings_data = [{"value": rating.rating} for rating in ratings]
+
+            return {"ratings": ratings_data}, 201
+        except ValueError as e:
+            return {"error": f"Invalid rating value. {str(e)}"}, 400
 
 
 class Comments(Resource):

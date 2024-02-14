@@ -60,6 +60,13 @@ class User(db.Model, SerializerMixin):
     def authenticate(self, password):
         return bcrypt.check_password_hash(self._password_hash, password.encode("utf-8"))
 
+    def has_favorited(self, recipe):
+
+        return (
+            FavoriteRecipe.query.filter_by(user_id=self.id, recipe_id=recipe.id).first()
+            is not None
+        )
+
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, username={self.username}, avatar={self.avatar})>"
 
@@ -202,6 +209,7 @@ class RecipeRating(db.Model, SerializerMixin):
         "Recipe", back_populates="recipe_ratings", single_parent=True
     )
     user = db.relationship("User", back_populates="recipe_ratings")
+    serialize_rules = ("-recipe.recipe_ratings", "-user.recipe_ratings")
 
     @validates("rating")
     def validate_rating(self, key, value):

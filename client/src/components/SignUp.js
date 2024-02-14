@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react";
+import { Redirect } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "./AuthContext";
@@ -10,9 +10,16 @@ import taco from "../taco.png";
 import "../index.css";
 
 function SignUp() {
-  const { setUser } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext); // Assuming you have user data in context
   const [signupError, setSignupError] = useState(null);
-  const history = useHistory();
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+
+  useEffect(() => {
+    // Check if user is already logged in
+    if (user) {
+      setIsLoggedIn(true);
+    }
+  }, [user]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
@@ -30,20 +37,24 @@ function SignUp() {
 
       const userData = await response.json();
       setUser(userData);
-      history.push("/");
-    }catch (error) {
-  console.error("Sign up error:", error);
-  if (error.message.includes("email")) {
-    setSignupError("Email is already in use");
-  } else if (error.message.includes("username")) {
-    setSignupError("Username is already taken");
-  } else {
-    setSignupError("Sign up failed. Please try again later.");
-  }
+      setIsLoggedIn(true); 
+    } catch (error) {
+      console.error("Sign up error:", error);
+      if (error.message.includes("email")) {
+        setSignupError("Email is already in use");
+      } else if (error.message.includes("username")) {
+        setSignupError("Username is already taken");
+      } else {
+        setSignupError("Sign up failed. Please try again later.");
+      }
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (isLoggedIn) {
+    return <Redirect to="/" />; 
+  }
 
   return (
     <div className="signup-container">
