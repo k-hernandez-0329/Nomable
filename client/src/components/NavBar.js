@@ -12,20 +12,6 @@ function Navbar() {
   const { user } = useContext(AuthContext);
 
 
-  // function logout() {
-  //   console.log("Logging out...");
-  //   fetch("/logout", {
-  //     method: "DELETE",
-  //   })
-  //     .then(() => {
-  //       console.log("Logout successful.");
-  //       handleLogout();
-  //       history.push("/");
-  //     })
-  //     .catch((error) => {
-  //       console.error("Logout failed:", error);
-  //     });
-  // }
   const renderAvatar = () => {
     switch (user.avatar) {
       case donut:
@@ -60,10 +46,9 @@ function Navbar() {
           {user ? (
             <>
               <p>Welcome, {user.username}!</p>
-
-              <Link to="/recipes">Recipes</Link>
+              <Link to="/journal-entry">Show Us!</Link>
+              <Link to="/new-recipe">Create Your Own Recipe</Link>
               <Link to="/profile">{renderAvatar()}</Link>
-             
             </>
           ) : (
             <>

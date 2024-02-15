@@ -11,6 +11,7 @@ function Home({ isAuthenticated, user_id }) {
   const [recipeRatings, setRecipeRatings] = useState([]);
   const [newRating, setNewRating] = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -78,12 +79,28 @@ function Home({ isAuthenticated, user_id }) {
     const minutes = duration.minutes();
     const seconds = duration.seconds();
 
+    if (hours === 0 && minutes === 0 && seconds === 0) {
+      // If the timer has reached 00:00:00, fetch new recipes
+      newRecipes();
+    }
     return {
       hours: hours < 10 ? `0${hours}` : hours,
       minutes: minutes < 10 ? `0${minutes}` : minutes,
       seconds: seconds < 10 ? `0${seconds}` : seconds,
     };
   }
+   const newRecipes = () => {
+     fetch("/new_recipes")
+       .then((res) => res.json())
+       .then((data) => {
+         setRecipes(data);
+       })
+       .catch((error) => {
+         console.error("Error fetching new recipes:", error);
+       });
+   };
+
+  
 
   const handleFavorite = (recipeId) => {
     const updatedRecipes = [...recipes];
@@ -200,6 +217,18 @@ function Home({ isAuthenticated, user_id }) {
       });
   };
 
+    const shareViaEmail = (recipeId, recipeTitle) => {
+      const recipeUrl = window.location.href; // Get the current page URL
+      const subject = encodeURIComponent(
+        `Check out this delicious recipe: ${recipeTitle} `
+      );
+      const body = encodeURIComponent(
+        `I thought you might like this recipe: ${recipeUrl}`
+      );
+      const emailShareUrl = `mailto:?subject=${subject}&body=${body}`;
+      window.location.href = emailShareUrl;
+    };
+
   return (
     <div className="container">
       <div className="homepage">
@@ -227,9 +256,31 @@ function Home({ isAuthenticated, user_id }) {
                   <div key={index} className="meal-placeholder">
                     <h2>{recipe.title}</h2>
                     <img src={recipe.image_url} alt={recipe.title} />
-                    <p>{recipe.description}</p>
-                    <p>Instructions: {recipe.instructions}</p>
+                    <h3>{recipe.description}</h3>
                     <p>Meal Type: {recipe.meal_type}</p>
+                    <p>
+                      <button
+                        onClick={() => setShowInstructions(!showInstructions)}
+                      >
+                        {showInstructions
+                          ? "Hide Instructions"
+                          : "Show Instructions"}
+                      </button>
+                    </p>
+                    {showInstructions && (
+                      <p>
+                        Instructions: <br />
+                        {recipe.instructions}
+                      </p>
+                    )}
+
+                    <div className="social-share-buttons">
+                      <button
+                        onClick={() => shareViaEmail(recipe.id, recipe.title)}
+                      >
+                        Share This With Friends!
+                      </button>
+                    </div>
                     <ul>
                       {recipe.ingredients && recipe.ingredients.length > 0 ? (
                         recipe.ingredients.map((ingredient, idx) => (
@@ -239,9 +290,9 @@ function Home({ isAuthenticated, user_id }) {
                         <li>No ingredients available</li>
                       )}
                     </ul>
-                    <button onClick={() => handleFavorite(recipe.id)}>
+                    {/* <button onClick={() => handleFavorite(recipe.id)}>
                       {recipe.favorited ? "Unfavorite" : "Favorite"}
-                    </button>
+                    </button> */}
 
                     <div>
                       Rate This Recipe!

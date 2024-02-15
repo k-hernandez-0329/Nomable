@@ -15,6 +15,8 @@ import Login from "./Login";
 import Home from "./Home";
 import Navbar from "./NavBar";
 import Profile from "./Profile";
+import NewRecipe from "./NewRecipe";
+import JournalEntry from "./JournalEntry"
 
 function App() {
   const [user, setUser] = useState(null);
@@ -84,6 +86,8 @@ function App() {
         {user && <Navbar user={user} />}
         <SearchBar />
         <Switch>
+          <Route path="/journal-entry" component={JournalEntry}/>
+          <Route exact path="/new-recipe" component={NewRecipe} />
           <Route
             path="/recipes"
             render={(props) => (

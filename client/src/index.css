@@ -211,14 +211,17 @@ body {
   display: flex;
   justify-content: space-around; /* Adjust as needed */
   flex-wrap: wrap;
+  flex-direction: row;
+ 
 }
 
 /* Styles for meal placeholders */
 .meal-placeholder {
+  
   border: 2px solid #C200FB;
   border-radius: 8px;
-  padding: 40px;
-  max-width: 800px;
+  padding: 20px;
+  max-width: 500px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   background-color: white;
   margin-top: 50px;
@@ -460,7 +463,9 @@ body {
 
 
 .profile {
-  max-width: 600px;
+  min-width: 350px;
+  max-width: 1000px;
+  max-height: 450px;
   margin: 0 auto;
   padding: 20px;
   border: 1px solid #ccc;
@@ -468,10 +473,13 @@ body {
   background-color: #f9f9f9;
   text-align: center;
   margin-top: 155px;
+  margin-bottom: -80px;
+ 
 }
 
 .profile h2 {
   margin-bottom: 20px;
+  margin-top: -20px;
 }
 
 .profile-info {
@@ -503,6 +511,7 @@ body {
   border: none;
   border-radius: 3px;
   cursor: pointer;
+  margin-bottom: 30px;
 }
 
 .profile-info button:disabled {
@@ -532,6 +541,8 @@ body {
 
 
 .profile-logout-button {
+  
+  position: fixed;
   padding: 2px 8px; /* Adjust padding as needed */
   background-color: #EC0868; /* Your desired background color */
   color: #fff; /* Text color */
@@ -539,7 +550,9 @@ body {
   border-radius: 4px; /* Apply border radius for rounded corners */
   cursor: pointer; /* Change cursor to pointer on hover */
   font-size: 16px;
-  margin-right: -500px;
+  margin-right: 810px;
+  margin-top: 70px;
+  margin-bottom: 35px;
 
 }
 
@@ -552,16 +565,15 @@ body {
 }
 
 .delete-button {
+  /* position: fixed; */
   background-color: #dc3545; /* Red background color */
   color: #fff; /* White text color */
   border: none; /* No border */
-  padding: 10px 20px; /* Padding */
   font-size: 16px; /* Font size */
   cursor: pointer; /* Cursor style */
   border-radius: 4px;
-  margin-top: 10px;
-  margin-bottom: -15px;
-  margin-right: -475px;
+  margin-top: 50px;
+  margin-right: -825px;
 }
 
 .delete-button:hover {
@@ -627,3 +639,94 @@ body {
 .recipe-card button:hover {
   background-color: #0056b3;
 } */
+
+
+/* journal css */
+
+/* Container for the entire form */
+.form-container {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-top: 220px;
+  margin-right: 40px;
+  margin-left: 30px;
+}
+
+/* Style for form heading */
+.form-container h1 {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Style for form inputs and labels */
+.form-container label {
+  font-weight: bold;
+}
+
+.form-container input[type="text"],
+.form-container textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Style for file input */
+.form-container input[type="file"] {
+  margin-bottom: 20px;
+}
+
+/* Style for submit button */
+.form-container button[type="submit"] {
+  padding: 10px 20px;
+  background-color: #C200FB;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Style for message display area */
+.message-container {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.image-gallery-container {
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-bottom: 50px;
+  margin-top: 30px;
+  /* Additional styling for the image gallery container */
+}
+
+.image-gallery-container h2 {
+  margin-bottom: 90px;
+  margin-top: -20px;
+  text-align: center;
+}
+
+.image-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: left;
+}
+
+.image-container img {
+  margin: 10px;
+  max-width: 200px;
+  max-height: 500px;
+  object-fit: contain; 
+  border-radius: 5px; /* Adds a rounded border to the images */
+  
+
+}

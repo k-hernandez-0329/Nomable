@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
 
 # Standard library imports
+from datetime import datetime, timedelta
+from werkzeug.utils import secure_filename
+import os
 
 # Remote library imports
-from flask import request, session, make_response, jsonify
+from flask import (
+    render_template,
+    request,
+    session,
+    make_response,
+    jsonify,
+    render_template,
+    send_from_directory,
+)
 from flask_restful import Resource
 
 # Local imports
@@ -18,6 +29,7 @@ from models import (
     FavoriteRecipe,
     RecipeRating,
     Comment,
+    JournalEntry,
 )
 
 # Views go here!
@@ -192,27 +204,23 @@ class Recipes(Resource):
         user_id = data.get("user_id")
         ingredient_names = data.get("ingredients", [])
 
-        if not title or not description or not meal_type or not user_id:
-            return make_response({"errors": ["Incomplete data provided"]}, 400)
+        if not all([title, description, meal_type, user_id]):
+            return make_response(jsonify({"errors": ["Incomplete data provided"]}), 400)
 
         user = User.query.get(user_id)
         if not user:
-            return make_response({"errors": ["User not found"]}, 404)
+            return make_response(jsonify({"errors": ["User not found"]}), 404)
 
         ingredients = []
 
         for name in ingredient_names:
-
             existing_ingredient = Ingredient.query.filter_by(name=name).first()
-
             if existing_ingredient:
-
                 ingredients.append(existing_ingredient)
             else:
-
                 new_ingredient = Ingredient(name=name)
-                ingredients.append(new_ingredient)
                 db.session.add(new_ingredient)
+                ingredients.append(new_ingredient)
 
         new_recipe = Recipe(
             title=title,
@@ -227,7 +235,7 @@ class Recipes(Resource):
         db.session.add(new_recipe)
         db.session.commit()
 
-        return make_response(new_recipe.to_dict(), 201)
+        return make_response(jsonify(new_recipe.to_dict()), 201)
 
 
 class RecipesById(Resource):
@@ -274,43 +282,54 @@ class Ingredients(Resource):
         )
 
 
-favorite_recipes = {}
-
-
 class FavoriteRecipes(Resource):
-    def post(self, user_id, recipe_id):
-        if user_id not in favorite_recipes:
-            favorite_recipes[user_id] = set()
 
-        # Check if the recipe is already favorited by the user
-        if recipe_id in favorite_recipes[user_id]:
-            favorite_recipes[user_id].remove(recipe_id)
+    def post(self, user_id, recipe_id):
+        user = User.query.get(user_id)
+        recipe = Recipe.query.get(recipe_id)
+
+        if not user or not recipe:
+            return {"error": "User or recipe not found"}, 404
+
+        if recipe_id in user.favorite_recipes:
+            user.favorite_recipes.remove(recipe_id)
             return {"message": "Recipe unfavorited successfully"}, 200
         else:
-            favorite_recipes[user_id].add(recipe_id)
+            user.favorite_recipes.append(recipe)
             return {"message": "Recipe favorited successfully"}, 201
 
     def get(self, user_id):
+        # Check if user exists
         user = User.query.get(user_id)
-
         if not user:
             return {"error": "User not found"}, 404
 
-        favorite_recipe_ids = favorite_recipes.get(user_id, [])
+        # Get user's favorite recipe IDs
+        favorite_recipe_ids = user.favorite_recipes
+
+        # Query favorite recipes
         favorite_recipes = Recipe.query.filter(Recipe.id.in_(favorite_recipe_ids)).all()
 
-        return make_response([recipe.to_dict() for recipe in favorite_recipes], 200)
+        return [recipe.to_dict() for recipe in favorite_recipes], 200
 
     def delete(self, user_id, recipe_id):
-        if (
-            user_id not in favorite_recipes
-            or recipe_id not in favorite_recipes[user_id]
-        ):
+        # Check if user exists
+        user = User.query.get(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
+
+        # Check if recipe exists
+        recipe = Recipe.query.get(recipe_id)
+        if not recipe:
+            return {"error": "Recipe not found"}, 404
+
+        # Remove recipe from user's favorites
+        if recipe_id in user.favorite_recipes:
+            user.favorite_recipes.remove(recipe_id)
+            db.session.commit()
+            return {"message": "Recipe unfavorited successfully"}, 200
+        else:
             return {"error": "Recipe is not favorited by the user"}, 400
-
-        favorite_recipes[user_id].remove(recipe_id)
-
-        return {"message": "Recipe unfavorited successfully"}, 204
 
 
 class RecipeRatings(Resource):
@@ -428,6 +447,73 @@ class ProfilesById(Resource):
         return {"message": "Profile deleted successfully"}, 204
 
 
+class NewRecipes(Resource):
+    def get(self):
+        # Calculate the date 24 hours ago from now
+        twenty_four_hours_ago = datetime.now() - timedelta(hours=24)
+
+        # Query recipes created after 24 hours ago
+        new_recipes = Recipe.query.filter(
+            Recipe.created_at >= twenty_four_hours_ago
+        ).all()
+
+        if new_recipes:
+            return make_response([recipe.to_dict() for recipe in new_recipes], 200)
+        else:
+            return {"message": "No new recipes found in the last 24 hours"}, 404
+
+
+class SubmitJournalEntryForm(Resource):
+    def get(self):
+        return render_template("submit_journal_entry_form.html")
+
+    def post(self):
+        data = request.form
+        # title = data.get("title")
+        # content = data.get("content")
+        image_file = request.files.get("image")
+
+        user_id = session.get("user_id")
+
+        if not user_id:
+            return {"error": "User not logged in"}, 401
+
+        # if not title or not content:
+        #     return {"error": "Title and content are required fields"}, 400
+
+        if image_file:
+            filename = secure_filename(image_file.filename)
+            image_path = os.path.join(
+                app.config["UPLOAD_FOLDER"], "journal_images", filename
+            )
+            image_file.save(image_path)
+
+        # Save the journal entry to the database here
+
+        return {"message": "Image added"}, 201
+
+
+class UploadedFile(Resource):
+    def get(self, folder, filename):
+        try:
+            file_path = os.path.join(app.config["UPLOAD_FOLDER"], folder, filename)
+            return send_from_directory(
+                os.path.dirname(file_path), os.path.basename(file_path)
+            )
+        except Exception as e:
+            return {"error": str(e)}, 500
+
+
+class ImageList(Resource):
+    def get(self):
+        try:
+            folder_path = os.path.join(app.config["UPLOAD_FOLDER"], "journal_images")
+            filenames = os.listdir(folder_path)
+            return {"image_urls": filenames}, 200
+        except Exception as e:
+            return {"error": str(e)}, 500
+
+
 api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 api.add_resource(CheckSession, "/check_session")
@@ -442,5 +528,9 @@ api.add_resource(RecipeRatings, "/recipe_ratings/<int:recipe_id>")
 api.add_resource(Comments, "/users/<int:user_id>/recipes/<int:recipe_id>/comments")
 api.add_resource(Profile, "/profiles")
 api.add_resource(ProfilesById, "/profiles/<int:id>")
+api.add_resource(NewRecipes, "/new_recipes")
+api.add_resource(SubmitJournalEntryForm, "/submit_journal_entry_form")
+api.add_resource(UploadedFile, "/uploads/<string:folder>/<string:filename>")
+api.add_resource(ImageList, "/uploads/journal_images")
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

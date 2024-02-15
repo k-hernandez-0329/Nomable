@@ -4,6 +4,9 @@ from sqlalchemy import Enum
 from datetime import datetime
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
+from flask import current_app
+from werkzeug.utils import secure_filename
+import os
 
 from config import db, bcrypt
 
@@ -15,6 +18,50 @@ recipe_ingredients = db.Table(
         "ingredient_id", db.Integer, db.ForeignKey("ingredients.id"), primary_key=True
     ),
 )
+
+
+class JournalEntry(db.Model, SerializerMixin):
+    __tablename__ = "journal_entries"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String)
+    content = db.Column(db.Text)
+    image_filename = db.Column(db.String)  # Stores the filename of the uploaded image
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+    user = db.relationship("User", back_populates="journal_entries")
+
+    serialize_rules = ("-user.journal_entries",)
+
+    @validates("title", "content")
+    def validate_title_content(self, key, value):
+        if not value:
+            raise ValueError("Title and content cannot be blank.")
+        return value
+
+    def __repr__(self):
+        return (
+            f"<JournalEntry(id={self.id}, title={self.title}, user_id={self.user_id})>"
+        )
+
+    def save_image(self, image_file):
+        if image_file:
+            # Ensure the uploads folder exists
+            uploads_dir = os.path.join(
+                current_app.config["UPLOAD_FOLDER"], "journal_images"
+            )
+            os.makedirs(uploads_dir, exist_ok=True)
+            # Generate a secure filename
+            filename = secure_filename(image_file.filename)
+            # Save the image to the uploads folder
+            image_file.save(os.path.join(uploads_dir, filename))
+            # Update the image filename in the database
+            self.image_filename = filename
+
+    def get_image_url(self):
+        if self.image_filename:
+            return f"/uploads/journal_images/{self.image_filename}"
+        return None
 
 
 class User(db.Model, SerializerMixin):
@@ -35,6 +82,10 @@ class User(db.Model, SerializerMixin):
     recipe_ratings = db.relationship(
         "RecipeRating", back_populates="user", cascade="all, delete-orphan"
     )
+    journal_entries = db.relationship(
+        "JournalEntry", back_populates="user", cascade="all, delete-orphan"
+    )
+
     serialize_rules = (
         "-profile",
         "-recipes",
@@ -102,9 +153,8 @@ class Recipe(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
     user = db.relationship("User", back_populates="recipes")
-    favorite_recipes = db.relationship(
-        "FavoriteRecipe", back_populates="recipe", cascade="all, delete-orphan"
-    )
+    favorite_recipes = db.relationship("FavoriteRecipe", back_populates="recipe")
+
     recipe_ratings = db.relationship(
         "RecipeRating", back_populates="recipe", cascade="all, delete-orphan"
     )
@@ -184,8 +234,8 @@ class FavoriteRecipe(db.Model, SerializerMixin):
     recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"), nullable=False)
     profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"), nullable=True)
 
-    user = db.relationship("User", back_populates="favorite_recipes", cascade="all")
-    recipe = db.relationship("Recipe", back_populates="favorite_recipes", cascade="all")
+    user = db.relationship("User", back_populates="favorite_recipes")
+    recipe = db.relationship("Recipe", back_populates="favorite_recipes")
     profile = db.relationship("Profile", back_populates="favorite_recipes")
 
     @validates("user_id", "recipe_id")
