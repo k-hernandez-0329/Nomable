@@ -1,11 +1,14 @@
-# Phase 4 Full-Stack Application Project Template
+# Nomable
 
-## Learning Goals
+## What is Nomable?
 
-- Discuss the basic directory structure of a full-stack Flask/React application.
-- Carry out the first steps in creating your Phase 4 project.
+Nomable is a revolutionary solution for individuals grappling
+with the perennial question "What's for dinner?". Nomable
+streamlines the meal planning process by presenting users with
+a curated selection of three recipes daily, spanning breakfast,
+lunch, and dinner
 
----
+--
 
 ## Introduction
 
