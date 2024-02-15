@@ -47,7 +47,7 @@ function Navbar() {
             <>
               <p>Welcome, {user.username}!</p>
               <Link to="/journal-entry">Show Us!</Link>
-              <Link to="/new-recipe">Create Your Own Recipe</Link>
+              {/* <Link to="/new-recipe">Create Your Own Recipe</Link> */}
               <Link to="/profile">{renderAvatar()}</Link>
             </>
           ) : (

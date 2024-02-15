@@ -102,8 +102,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center; /* Center horizontally */
-  position: relative;
-  margin-top: -170px; /* Adjust the margin from the top */
+  position: sticky;
+  margin-top: -150px; /* Adjust the margin from the top */
 }
 
 
@@ -117,7 +117,7 @@ body {
   color: white;
   font-size: 16px;
   font-weight: bold;
-
+  position: relative;
   
 }
 
@@ -472,14 +472,14 @@ body {
   border-radius: 20px;
   background-color: #f9f9f9;
   text-align: center;
-  margin-top: 155px;
+  margin-top: 95px;
   margin-bottom: -80px;
  
 }
 
 .profile h2 {
-  margin-bottom: 20px;
-  margin-top: -20px;
+  margin-bottom: 40px;
+  margin-top: 20px;
 }
 
 .profile-info {
@@ -550,7 +550,7 @@ body {
   border-radius: 4px; /* Apply border radius for rounded corners */
   cursor: pointer; /* Change cursor to pointer on hover */
   font-size: 16px;
-  margin-right: 810px;
+  margin-right: 830px;
   margin-top: 70px;
   margin-bottom: 35px;
 
@@ -573,7 +573,7 @@ body {
   cursor: pointer; /* Cursor style */
   border-radius: 4px;
   margin-top: 50px;
-  margin-right: -825px;
+  margin-right: -745px;
 }
 
 .delete-button:hover {
@@ -645,12 +645,12 @@ body {
 
 /* Container for the entire form */
 .form-container {
-  margin-bottom: 20px;
+  margin-bottom: 60px;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f9f9f9;
-  margin-top: 220px;
+  margin-top: 90px;
   margin-right: 40px;
   margin-left: 30px;
 }
@@ -705,7 +705,7 @@ body {
   border-radius: 5px;
   background-color: #f9f9f9;
   margin-bottom: 50px;
-  margin-top: 30px;
+  margin-top: 60px;
   /* Additional styling for the image gallery container */
 }
 

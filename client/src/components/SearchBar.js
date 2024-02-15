@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import '../index.css';
+import React, { useState } from "react";
+import "../index.css";
 
-const SearchBar = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+const SearchBar = ({ setSearchTerm }) => {
+  const [searchTerm, setSearchTermLocal] = useState("");
 
-  const handleSearch = () => {
-    // You can implement your search logic here
-    console.log('Searching for:', searchTerm);
+  const handleChange = (e) => {
+    const term = e.target.value;
+    setSearchTermLocal(term); // Update local state
+    setSearchTerm(term); // Pass the search term to the parent component
   };
 
   return (
@@ -14,14 +15,12 @@ const SearchBar = () => {
       <input
         type="text"
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={handleChange}
         placeholder="Search"
         className="search-bar"
       />
-      
     </div>
   );
 };
 
 export default SearchBar;
-
